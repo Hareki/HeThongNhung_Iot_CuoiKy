@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+  <head>
+    <base href="../" />
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta
+      name="description"
+      content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers."
+    />
+    <!-- Fav Icon  -->
+    <link rel="shortcut icon" href="https://res.cloudinary.com/dlrdyoxfv/image/upload/v1646580137/favicon_y3xdqf.ico">
+    <!-- Page Title  -->
+    <title>Dashboard</title>
+    <!-- StyleSheets  -->
+    <link rel="stylesheet" href="/css/dashlite.css?ver=3.0.0" />
+    <link rel="stylesheet" href="/css/custom.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js"></script>
+  
+
+
+    <link
+      id="skin-default"
+      rel="stylesheet"
+      href="/css/theme.css?ver=3.0.0"
+    />
+  </head>
+
+  <body class="nk-body bg-lighter npc-default has-sidebar">
+    <div class="nk-app-root">
+      <!-- main @s -->
+      <div class="nk-main">
+        <!-- wrap @s -->
+        <div class="nk-wrap">
+          <!-- main header @s -->
+
+          <!-- main header @e -->
+          <!-- content @s -->
+          <div class="nk-content">
+            <div class="container-fluid">
+              <div class="nk-content-inner">
+                <div class="nk-content-body">
+                  <div class="nk-block-head nk-block-head-sm">
+                    <div class="nk-block-between">
+                      <div class="nk-block-head-content">
+                        <h3 class="nk-block-title page-title">
+                          Bảng theo dõi và điều khiển
+                        </h3>
+                      </div>
+                      <!-- .nk-block-head-content -->
+                      <div class="nk-block-head-content">
+                        <div class="toggle-wrap nk-block-tools-toggle">
+                          <a
+                            href="#"
+                            class="btn btn-icon btn-trigger toggle-expand me-n1"
+                            data-target="pageMenu"
+                            ><em class="icon ni ni-more-v"></em
+                          ></a>
+                        </div>
+                      </div>
+                      <!-- .nk-block-head-content -->
+                    </div>
+                    <!-- .nk-block-between -->
+                  </div>
+                  <!-- .nk-block-head -->
+                  <div class="center-screen">
+                    <div class="nk-block">
+                      <div class="row g-gs">
+
+                      <!-- .light -->
+                        <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-lg-0">
+                          <div class="card">
+                            <div class="nk-ecwg nk-ecwg6">
+                              <div class="card-inner">
+                                <div class="card-title-group nk-footer-wrap">
+                                  <div class="card-title">
+                                    <h6 class="title">Đèn</h6>
+                                  </div>
+                                  <div>
+                                    <label class="switch">
+                                      <input type="checkbox" checked/>
+                                      <span class="slider"></span>
+                                    </label>
+                                  </div>
+                                </div>
+                                <div class="data mt-1" id="content-light">
+                                  <div>
+                                    <div class="inline">
+                                      <span class = "info function">Độ sáng</span>
+                                      <input type="range"  min="0" max="100" step="1" class="sliderB" id="sliderB" value="50" onchange="updateSliderValue()">
+                                      <span class = "textSliderValue ms-3" id="textSliderValue">50</span> &#37
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div class="inline" style="margin-bottom: 0px">
+                                      <span class = "info function">Màu sắc</span>
+                                      <input  type="text" style = "background-color: '#%phRGB2%';" value=%phRGB2% class="jscolor" id="rgb2" readonly />
+                                      <a href="#" class="btn btn-icon btn-primary ms-3" style="min-width: 50px;"><div style="text-align: center; width: 100%;">OK</div></a>
+                                      
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <!-- .card-inner -->
+                            </div>
+                            <!-- .nk-ecwg -->
+                          </div>
+                          <!-- .card -->
+                        </div>
+                        <!-- .light -->
+                        <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-lg-1">
+                          <div class="card">
+                            <div class="nk-ecwg nk-ecwg6">
+                              <div class="card-inner">
+                                <div class="card-title-group nk-footer-wrap">
+                                  <div class="card-title">
+                                    <h6 class="title">Nhiệt độ</h6>
+                                  </div>
+                                  <div>
+                                    <label class="switch">
+                                      <input type="checkbox" onchange="setSensorEnabled('#content-temp',this.checked)" checked/>
+                                      <span class="slider"></span>
+                                    </label>
+                                  </div>
+                                </div>
+                                <div class="data" id="content-temp">
+                                  <div class="main-content">
+                                    <div class="data-group">
+                                      <div class="amount">25<span> °C</span></div>
+                                      <div class="nk-ecwg6-ck">
+                                        <canvas
+                                          class="ecommerce-line-chart-s3"
+                                          id="todayOrders"
+                                        ></canvas>
+                                      </div>
+                                    </div>
+                                    <div class="info">
+                                      <span>Nhiệt độ bình thường</span>
+                                    </div>
+                                  </div>
+                                  <div class="sub-content"></div>
+                                </div>
+                              </div>
+                              <!-- .card-inner -->
+                            </div>
+                            <!-- .nk-ecwg -->
+                          </div>
+                          <!-- .card -->
+                        </div>
+
+                        <!-- .col -->
+                        <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-lg-2">
+                          <div class="card">
+                            <div class="nk-ecwg nk-ecwg6">
+                              <div class="card-inner">
+                                <div class="card-title-group nk-footer-wrap">
+                                  <div class="card-title">
+                                    <h6 class="title">Độ ẩm</h6>
+                                  </div>
+                                  <div>
+                                    <label class="switch">
+                                      <input type="checkbox" onchange="setSensorEnabled('#content-humid',this.checked)" checked/>
+                                      <span class="slider"></span>
+                                    </label>
+                                  </div>
+                                </div>
+                                <div class="data" id="content-humid">
+                                  <div class="main-content">
+                                    <div class="data-group">
+                                      <div class="amount">69<span> %</span></div>
+                                      <div class="nk-ecwg6-ck">
+                                        <canvas
+                                          class="ecommerce-line-chart-s3"
+                                          id="todayRevenue"
+                                        ></canvas>
+                                      </div>
+                                    </div>
+                                    <div class="info">
+                                      <span class="change down text-danger"
+                                        >Độ ẩm cao</span
+                                      >
+                                    </div>
+                                  </div>
+                                  <div class="sub-content"></div>
+                                  
+                                </div>
+                              </div>
+                              <!-- .card-inner -->
+                            </div>
+                            <!-- .nk-ecwg -->
+                          </div>
+                          <!-- .card -->
+                        </div>
+
+
+
+                        <!-- flame -->
+                        <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-first order-lg-3">
+                          <div class="card flame-detected-color" id = "card-fire">
+                            <div class="nk-ecwg nk-ecwg6">
+                              <div class="card-inner">
+                                <div class="card-title-group nk-footer-wrap">
+                                  <div class="card-title">
+                                    <h6 class="title flame-detected-color" id = "title-fire">Cảm biến lửa<h6/>
+                                  </div>
+                                  <div>
+                                    <label class="switch">
+                                      <input type="checkbox" onchange="setSensorEnabled('#content-fire',this.checked)" checked/>
+                                      <span class="slider"></span>
+                                    </label>
+                                  </div>
+                                </div>
+                                <div class="data" id = "content-fire">
+                                  <div class="main-content">
+                                    <div>
+                                      Phát hiện có lửa
+                                    </div>
+                                    <div class="center mt-1">
+                                      <div class="flame-detected-img">&nbsp;</div>
+                                    </div>
+                                  </div>
+                                  <div class="sub-content"></div>
+
+                                </div>
+                              </div>
+                              <!-- .card-inner -->
+                            </div>
+                            <!-- .nk-ecwg -->
+                          </div>
+                          <!-- .card -->
+                        </div>
+                        <!-- flame -->
+
+                        <!-- .col -->
+                        <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-lg-4">
+                          <div class="card">
+                            <div class="nk-ecwg nk-ecwg6">
+                              <div class="card-inner">
+                                <div class="card-title-group nk-footer-wrap">
+                                  <div class="card-title">
+                                    <h6 class="title">Nồng độ bụi</h6>
+                                  </div>
+                                  <div>
+                                    <label class="switch">
+                                      <input type="checkbox" onchange="setSensorEnabled('#content-dust',this.checked)" checked/>
+                                      <span class="slider"></span>
+                                    </label>
+                                  </div>
+                                </div>
+                                <div class="data" id="content-dust">
+                                  <div class="main-content">
+                                    <div class="data-group">
+                                      <div class="amount">42.3<span> µg/m³</span></div>
+                                      <div class="nk-ecwg6-ck">
+                                        <canvas
+                                          class="ecommerce-line-chart-s3"
+                                          id="todayCustomers"
+                                        ></canvas>
+                                      </div>
+                                    </div>
+                                    <div class="info">
+                                      <span class="change up text-danger">
+                                        Nồng độ bụi thấp</span
+                                      >
+                                    </div>
+                                  </div>
+                                  <div class="sub-content"></div>
+
+                                  <!-- <div class="info">
+                                    <div>
+                                      Cảm biến đã tắt
+                                    </div>
+                                    <div class="center mt-1">
+                                      <div class="sleep-img">&nbsp;</div>
+                                    </div>
+                                  </div> -->
+
+                                </div>
+                              </div>
+                              <!-- .card-inner -->
+                            </div>
+                            <!-- .nk-ecwg -->
+                          </div>
+                          <!-- .card -->
+                        </div>
+                        <!-- .col -->
+                        <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-lg-5">
+                          <div class="card">
+                            <div class="nk-ecwg nk-ecwg6">
+                              <div class="card-inner">
+                                <div class="card-title-group nk-footer-wrap">
+                                  <div class="card-title">
+                                    <h6 class="title">Nồng độ ga</h6>
+                                  </div>
+                                  <div>
+                                    <label class="switch">
+                                      <input type="checkbox" onchange="setSensorEnabled('#content-gas',this.checked)" checked/>
+                                      <span class="slider"></span>
+                                    </label>
+                                  </div>
+                                </div>
+                                <div class="data" id="content-gas">
+                                  <div class="main-content">
+                                    <div class="data-group">
+                                      <div class="amount">21.2<span> PPM</span></div>
+                                      <div class="nk-ecwg6-ck">
+                                        <canvas
+                                          class="ecommerce-line-chart-s3"
+                                          id="todayVisitors"
+                                        ></canvas>
+                                      </div>
+                                    </div>
+                                    <div class="info">
+                                      <span class="change down text-danger"
+                                        >Nồng độ ga cao bất thường</span
+                                      >
+                                    </div>
+                                  </div>
+                                  <div class="sub-content"></div>
+
+                                </div>
+                              </div>
+                              <!-- .card-inner -->
+                            </div>
+                            <!-- .nk-ecwg -->
+                          </div>
+                          <!-- .card -->
+                        </div>
+                        <!-- .col -->
+
+                        
+                      </div>
+
+                      <!-- .row -->
+                    </div>
+                  </div>
+
+                  <!-- .nk-block -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- content @e -->
+          <!-- footer @s -->
+          <div class="nk-footer">
+            <div class="container-fluid">
+              <div class="nk-footer-wrap">
+                <div class="nk-footer-copyright">
+                  &copy; Đồ án cuối kì môn Xây dựng các hệ thống nhúng - Nhóm 6
+                </div>
+                <div class="inline mb-0">
+                  <strong class="mb-0" style="width: 125px;">Chế độ tối</strong>
+                  <div class="dark-switch"></div>
+                </div>
+              
+ 
+              
+              </div>
+            </div>
+          </div>
+          <!-- footer @e -->
+        </div>
+        <!-- wrap @e -->
+      </div>
+      <!-- main @e -->
+    </div>
+    <!-- app-root @e -->
+    <!-- JavaScript -->
+    <script src="/js/bundle.js?ver=3.0.0"></script>
+    <script src="/js/scripts.js?ver=3.0.0"></script>
+    <script src="/js/chart-ecommerce.js?ver=3.0.0"></script>
+    <script src="/js/custom.js"></script>
+  </body>
+</html>
