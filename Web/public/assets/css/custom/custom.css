@@ -56,7 +56,7 @@ input[type="checkbox"]:checked + .slider:before {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: start;
+  justify-content: space-between;
   margin-bottom: 15px;
 }
 .function {
@@ -105,7 +105,7 @@ input[type="checkbox"]:checked + .slider:before {
   text-align: end;
 }
 
-input[type="text"] {
+input[type="text"], input[type="password"], input[type="email"] {
   width: 50%;
   padding: 0.3rem 0.5rem;
   font-size: 0.9375rem;
@@ -114,12 +114,11 @@ input[type="text"] {
   color: #4b566b;
   background-color: #fff;
   background-clip: padding-box;
-  border: 3px solid #dae1e7;
+  border: 2px solid #dae1e7;
   appearance: none;
   border-radius: 0.3125rem;
   box-shadow: inset 0 1px 2px transparent;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  margin-left: 10px;
 }
 
 input[type="text"]:focus{
@@ -132,7 +131,7 @@ input[type="text"]:focus{
 }
 
 .card-min-height{
-  min-height: 200px;
+  min-height: 225px;
 }
 
 .title-min-width{
@@ -146,14 +145,14 @@ input[type="text"]:focus{
 .flame-detected-img{
   width:70px; 
   height:70px; 
-  content:url('/img/flame.png');
+  content:url('/assets/img/flame.png');
   margin:0; 
   padding:0; 
 }
 .no-flame-img {
   width:70px; 
   height:70px; 
-  content:url('/img/no_fire_light.png');
+  content:url('/assets/img/no_fire_light.png');
   margin:0; 
   padding:0; 
 }
@@ -161,7 +160,7 @@ input[type="text"]:focus{
 .dark-mode .no-flame-img {
   width:70px; 
   height:70px; 
-  content:url('/img/no_fire_dark.png');
+  content:url('/assets/img/no_fire_dark.png');
   margin:0; 
   padding:0; 
 }
@@ -169,7 +168,7 @@ input[type="text"]:focus{
 .sleep-img{
   width:70px; 
   height:70px; 
-  content:url('/img/sleep_light.png');
+  content:url('/assets/img/sleep_light.png');
   margin:0; 
   padding:0; 
 }
@@ -177,7 +176,7 @@ input[type="text"]:focus{
 .dark-mode .sleep-img{
   width:70px; 
   height:70px; 
-  content:url('/img/sleep_dark.png');
+  content:url('/assets/img/sleep_dark.png');
   margin:0; 
   padding:0; 
 }
@@ -186,3 +185,8 @@ input[type="text"]:focus{
   display: none;
 }
 
+.center2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

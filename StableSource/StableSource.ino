@@ -37,7 +37,6 @@ MQUnifiedsensor MQ2(Board, Voltage_Resolution, ADC_Bit_Resolution, ANALOG_GAS, T
 // DEFINE FIREBASE
 #define DATABASE_URL "iot-project-7486d-default-rtdb.asia-southeast1.firebasedatabase.app"
 #define SECRECT_KEY "t9gujxIcFO6k3k6V2LX71UO89UMReJ8rVghlMuW5"
-#define API_KEY "AIzaSyDExcDgLNEP2xf2hxtQS-nZLdFBtK-2ZzM"
 
 // DEFINE WIFI
 #define WIFI_SSID "Asura"
@@ -85,26 +84,11 @@ void connectToWifi() {
 
 void connectToFirebase() {
   Serial.println("\nĐang kết nối tới Firebase, vui lòng chờ...");
-  config.api_key = API_KEY;
-   auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
   config.database_url = DATABASE_URL;
+  config.signer.tokens.legacy_token = SECRECT_KEY;
+  config.timeout.socketConnection = 1000;
   Firebase.reconnectWiFi(true);
-  config.token_status_callback = tokenStatusCallback
-  config.max_token_generation_retry = 5;
   Firebase.begin( & config, & auth);
-
-  Serial.println("Đang lấy User ID");
-  while ((auth.token.uid) == "") {
-    Serial.print('.');
-    delay(1000);
-  }
-  // Print user UID
-  uid = auth.token.uid.c_str();
-  Serial.print("User ID: ");
-  Serial.println(uid);
-
-  
   Serial.println("Kết nối tới Firebase thành công!");
 }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zxx" class="js">
+<html lang="zxx" class="js h-100">
 
 <head>
   <base href="../" />
@@ -11,18 +11,105 @@
   <link rel="shortcut icon" href="https://res.cloudinary.com/dlrdyoxfv/image/upload/v1646580137/favicon_y3xdqf.ico">
   <!-- Page Title  -->
   <title>Dashboard</title>
+
+  <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
+  <script>
+    // REPLACE WITH YOUR web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDExcDgLNEP2xf2hxtQS-nZLdFBtK-2ZzM",
+      authDomain: "iot-project-7486d.firebaseapp.com",
+      databaseURL: "https://iot-project-7486d-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "iot-project-7486d",
+      storageBucket: "iot-project-7486d.appspot.com",
+      messagingSenderId: "135995069931",
+      appId: "1:135995069931:web:725af818ec868afd35f5ae"
+    };
+
+    // Initialize firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Make auth and database references
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+  </script>
+
   <!-- StyleSheets  -->
-  <link rel="stylesheet" href="/css/dashlite.css?ver=3.0.0" />
-  <link rel="stylesheet" href="/css/custom.css" />
+  <link rel="stylesheet" href="/assets/css/original/dashlite.css?ver=3.0.0" />
+  <link id="skin-default" rel="stylesheet" href="/assets/css/original/theme.css?ver=3.0.0" />
+
+  <link rel="stylesheet" href="/assets/css/custom/custom.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscolor/2.0.4/jscolor.min.js"></script>
-
-
-
-  <link id="skin-default" rel="stylesheet" href="/css/theme.css?ver=3.0.0" />
 </head>
 
-<body class="nk-body bg-lighter npc-default has-sidebar">
-  <div class="nk-app-root">
+<body class="nk-body bg-lighter npc-default has-sidebar h-100">
+
+  <div class="h-100" id="login-section">
+    <div class="container center2 h-100">
+      <div class="row justify-content-center w-100">
+        <div class="col-md-10">
+          <div class="row justify-content-center">
+            <div class="card h-100">
+              <div class="row justify-content-center">
+                <div class="col-md-6">
+                  <div class="card-inner h-100" style="padding: 4rem 1rem 1rem 4rem;">
+                    <div class="card-head" style="display: block;">
+                      <h5 class="card-title">Đăng nhập</h5>
+                      <div class="nk-block-des">
+                        <p>Đồ án IoT dùng ESP32 môn Hệ thống nhúng - nhóm 6</p>
+                      </div>
+                    </div>
+                    <form id="login-form">
+                      <div class="form-group">
+                        <label class="form-label" for="input-email">Địa chỉ email</label>
+                        <div class="form-control-wrap">
+                          <div class="form-icon lg form-icon-left">
+                            <em class="icon ni ni-user"></em>
+                          </div>
+                          <input type="email" placeholder="example@gmail.com" class="form-control form-control-lg w-100"
+                            id="input-email" required>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="input-password">Mật khẩu</label>
+                        <div class="form-control-wrap">
+                          <div class="form-icon lg form-icon-left">
+                            <em class="icon ni ni-lock"></em>
+                          </div>
+                          <input type="password" placeholder="Nhập mật khẩu" class="form-control form-control-lg w-100"
+                            id="input-password" required>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <button type="submit" id="login-button" class="btn btn-lg btn-primary w-100 center">Tiếp
+                          tục</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="center">
+                    <img src="./assets/img/IoT.png" style="width: 350px; pointer-events: none;" alt="">
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- style="display: none;" -->
+  <div class="nk-app-root hidden" id="content-sign-in">
     <!-- main @s -->
     <div class="nk-main">
       <!-- wrap @s -->
@@ -39,9 +126,51 @@
                   <div class="nk-block-between">
                     <div class="nk-block-head-content">
                       <h3 class="nk-block-title page-title">
-                        Bảng theo dõi và điều khiển 2
+                        Bảng theo dõi và điều khiển
                       </h3>
                     </div>
+
+
+                    <!-- dropdown user -->
+                    <li class="dropdown user-dropdown">
+                      <a href="#" class="dropdown-toggle me-n1" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="user-toggle">
+                          <div class="user-avatar sm">
+                            <em class="icon ni ni-user-alt"></em>
+                          </div>
+                          <div class="user-info d-none d-xl-block">
+                            <div class="user-status user-status-verified">Xin chào người dùng</div>
+                            <div class="user-name dropdown-indicator">example@gmail.com</div>
+                          </div>
+                        </div>
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-md dropdown-menu-end">
+                        <div class="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
+                          <div class="user-card">
+                            <div class="user-avatar">
+                              <em class="icon ni ni-user-alt"></em>
+                            </div>
+                            <div class="user-info">
+                              <span class="lead-text" id="user-email">example@gmail.com</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="dropdown-inner">
+                          <ul class="link-list">
+                            <li><a class="dark-switch" href="#"><em class="icon ni ni-moon"></em><span>Chế độ
+                                  tối</span></a></li>
+                          </ul>
+                        </div>
+                        <div class="dropdown-inner">
+                          <ul class="link-list">
+                            <li><a href="" id="logout-button"><em class="icon ni ni-signout"></em><span>Đăng
+                                  xuất</span></a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </li>
+
+                    <!-- dropdown user -->
                     <!-- .nk-block-head-content -->
                     <!-- .nk-block-head-content -->
                   </div>
@@ -56,25 +185,25 @@
                       <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-sm-2 order-lg-0">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner">
+                            <div class="card-inner" id="content-led">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
                                   <h6 class="title">Đèn</h6>
                                 </div>
-                                <div>
-                                  <label class="switch">
-                                    <input type="checkbox" checked />
-                                    <span class="slider"></span>
-                                  </label>
+                                <div class="form-group">
+                                  <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="led-switch" checked>
+                                    <label class="custom-control-label" for="led-switch">On</label>
+                                  </div>
                                 </div>
                               </div>
-                              <div class="data mt-1" id="content-light">
+                              <div class="data mt-1">
                                 <div>
                                   <div class="inline">
                                     <span class="info function">Độ sáng</span>
                                     <input type="range" min="0" max="100" step="1" class="sliderB" id="sliderB"
                                       value="50" onchange="updateSliderValue()">
-                                    <span class="textSliderValue ms-3" id="textSliderValue">50</span> &#37
+                                    <span class="textSliderValue" id="textSliderValue">50</span> &#37
                                   </div>
                                 </div>
                                 <div>
@@ -82,7 +211,7 @@
                                     <span class="info function">Màu sắc</span>
                                     <input type="text" style="background-color: '#%phRGB2%';" value=%phRGB2%
                                       class="jscolor" id="rgb2" readonly />
-                                    <a href="#" class="btn btn-icon btn-primary ms-3" style="min-width: 50px;">
+                                    <a href="#" class="btn btn-icon btn-primary" style="min-width: 50px;">
                                       <div style="text-align: center; width: 100%;">OK</div>
                                     </a>
 
@@ -101,20 +230,21 @@
                       <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-1 order-lg-1">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner">
+                            <div class="card-inner" id="content-gas">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
                                   <h6 class="title">Nồng độ ga</h6>
                                 </div>
-                                <div>
-                                  <label class="switch">
-                                    <input type="checkbox" onchange="setSensorEnabled('#content-gas',this.checked)"
-                                      checked />
-                                    <span class="slider"></span>
-                                  </label>
+                                <div class="form-group">
+                                  <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input"
+                                      onchange="setSensorEnabled('#content-gas',this.checked)" id="gas-switch" checked>
+                                    <label class="custom-control-label" for="gas-switch">On</label>
+                                  </div>
                                 </div>
+
                               </div>
-                              <div class="data" id="content-gas">
+                              <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
                                     <div class="amount"><span id="value-gasPPM"></span> PPM</div>
@@ -152,7 +282,7 @@
                               <div class="data" id="content-temp">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id = "value-temp"> </span>°C</div>
+                                    <div class="amount"><span id="value-temp"> </span>°C</div>
                                     <div class="nk-ecwg6-ck">
                                       <canvas class="ecommerce-line-chart-s3" id="todayOrders"></canvas>
                                     </div>
@@ -175,17 +305,17 @@
                       <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-4 order-lg-4">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner">
+                            <div class="card-inner" id="content-humid">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
                                   <h6 class="title">Độ ẩm</h6>
                                 </div>
 
                               </div>
-                              <div class="data" id="content-humid">
+                              <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id = "value-humid"> </span> %</div>
+                                    <div class="amount"><span id="value-humid"> </span> %</div>
                                     <div class="nk-ecwg6-ck">
                                       <canvas class="ecommerce-line-chart-s3" id="todayRevenue"></canvas>
                                     </div>
@@ -211,21 +341,22 @@
                       <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-sm-0 order-lg-3">
                         <div class="card flame-detected-color" id="card-fire">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner">
+                            <div class="card-inner" id="content-fire">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
                                   <h6 class="title flame-detected-color" id="title-fire">Cảm biến lửa
                                     <h6 />
                                 </div>
-                                <div>
-                                  <label class="switch">
-                                    <input type="checkbox" onchange="setSensorEnabled('#content-fire',this.checked)"
-                                      checked />
-                                    <span class="slider"></span>
-                                  </label>
+                                <div class="form-group">
+                                  <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input"
+                                      onchange="setSensorEnabled('#content-fire',this.checked)" id="fire-switch"
+                                      checked>
+                                    <label class="custom-control-label" for="fire-switch">On</label>
+                                  </div>
                                 </div>
                               </div>
-                              <div class="data" id="content-fire">
+                              <div class="data">
                                 <div class="main-content">
                                   <div>
                                     Phát hiện có lửa
@@ -252,17 +383,17 @@
                       <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-5 order-lg-5">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner">
+                            <div class="card-inner" id="content-dust">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
                                   <h6 class="title">Nồng độ bụi</h6>
                                 </div>
 
                               </div>
-                              <div class="data" id="content-dust">
+                              <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id = "value-dust"> </span> µg/m³</div>
+                                    <div class="amount"><span id="value-dust"> </span> µg/m³</div>
                                     <div class="nk-ecwg6-ck">
                                       <canvas class="ecommerce-line-chart-s3" id="todayCustomers"></canvas>
                                     </div>
@@ -312,10 +443,6 @@
               <div class="nk-footer-copyright">
                 &copy; Đồ án cuối kì môn Xây dựng các hệ thống nhúng - Nhóm 6
               </div>
-              <div class="inline mb-0">
-                <strong class="mb-0" style="width: 125px;">Chế độ tối</strong>
-                <div class="dark-switch"></div>
-              </div>
             </div>
           </div>
         </div>
@@ -327,103 +454,13 @@
   </div>
   <!-- app-root @e -->
   <!-- JavaScript -->
-  <script src="/js/bundle.js?ver=3.0.0"></script>
-  <script src="/js/scripts.js?ver=3.0.0"></script>
-  <script src="/js/chart-ecommerce.js?ver=3.0.0"></script>
-  <script src="/js/custom.js"></script>
-  <script type ="module">
-    // Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-analytics.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/9.6.11/firebase-database.js";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  <script src="/assets/js/original/bundle.js?ver=3.0.0"></script>
+  <script src="/assets/js/original/scripts.js?ver=3.0.0"></script>
+  <script src="/assets/js/original/chart-ecommerce.js"></script>
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAwua9lX8EYGJwMEgocl2FKwJwEwz1teA0",
-  authDomain: "esp32-server-4434f.firebaseapp.com",
-  databaseURL:
-    "https://esp32-server-4434f-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "esp32-server-4434f",
-  storageBucket: "esp32-server-4434f.appspot.com",
-  messagingSenderId: "560161030122",
-  appId: "1:560161030122:web:74ae367aeeef66d90dfc93",
-  measurementId: "G-FZ8QCFD7Y7",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-const database = getDatabase(app);
-
-// Database reference
-const alertFireRef = database.ref("alert/fire");
-const alertGasRef = database.ref("alert/gas");
-
-const dustRef = database.ref("sensor/humidity");
-const tempRef = database.ref("sensor/temperature");
-const humidRef = database.ref("sensor/humidity");
-const gasPPMRef = database.ref("sensor/gasPPM");
-
-// Values
-var alertFire;
-var alertGas;
-
-var humidity;
-var temperature;
-var humidity;
-var gasPPM;
-
-// Attach an asynchronous callback to read the data
-dustRef.on(
-  "value",
-  (snapshot) => {
-    humidity = snapshot.val();
-    console.log(humidity);
-    document.getElementById("value-dust").innerHTML = humidity;
-  },
-  (errorObject) => {
-    console.log("The read failed: " + errorObject.name);
-  }
-);
-
-tempRef.on(
-  "value",
-  (snapshot) => {
-    temperature = snapshot.val();
-    console.log(temperature);
-    document.getElementById("value-temp").innerHTML = temperature;
-  },
-  (errorObject) => {
-    console.log("The read failed: " + errorObject.name);
-  }
-);
-
-humidRef.on(
-  "value",
-  (snapshot) => {
-    humidity = snapshot.val();
-    console.log(humidity);
-    document.getElementById("value-humid").innerHTML = humidity;
-  },
-  (errorObject) => {
-    console.log("The read failed: " + errorObject.name);
-  }
-);
-gasPPM.on(
-  "value",
-  (snapshot) => {
-    gasPPM = snapshot.val();
-    console.log(gasPPM);
-    document.getElementById("value-gasPPM").innerHTML = gasPPM;
-  },
-  (errorObject) => {
-    console.log("The read failed: " + errorObject.name);
-  }
-);
-
-  </script>
+  <script src="/assets/js/custom/ui-control.js"></script>
+  <script src="/assets/js/custom/dashboard-update.js"></script>
+  <script src="/assets/js/custom/auth.js"></script>
 </body>
+
 </html>
