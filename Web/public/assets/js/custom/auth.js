@@ -2,11 +2,11 @@
 auth.onAuthStateChanged((user) => {
   if (user) {
     console.log("user logged in: " + user.email);
-    setupUI(user);
+    changeSection(user);
 
   } else {
     console.log("user logged out");
-    setupUI();
+    changeSection();
   }
 });
 

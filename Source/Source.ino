@@ -1,18 +1,19 @@
+#include "DHT.h"
 #include <FirebaseESP32.h>
 #include <MQUnifiedsensor.h>
-#include <esp_task_wdt.h>
-#include "DHT.h"
 #include <WiFi.h>
+#include <addons/TokenHelper.h>
+#include <esp_task_wdt.h>
 
 // DEFINE PORT
 #define ANALOG_GAS 32
 #define ANALOG_FIRE 33
-#define ANALOG_TEHU 19 //TEMPERATURE + HUMID = TEHU
+#define ANALOG_TEHU 19 // TEMPERATURE + HUMID = TEHU
 #define ANALOG_WHISTLE 12
 
-#define DUST_1 "VCC" //LED
-#define DUST_2 "GND" //LED
-#define DUST_3 18 //LED
+#define DUST_1 "VCC" // LED
+#define DUST_2 "GND" // LED
+#define DUST_3 18    // LED
 #define DUST_4 "GND"
 #define DUST_5 35
 #define DUST_6 "VCC"
@@ -20,6 +21,12 @@
 #define LED_RED 23
 #define LED_GREEN 22
 #define LED_BLUE 21
+#define LED_RESOLUTION 8
+
+#define LED_RED_PWM 0
+#define LED_GREEN_PWM 1
+#define LED_BLUE_PWM 2
+
 
 #define R0 (0.58)
 //-----------------
@@ -27,11 +34,11 @@
 #define SAMPLING_TIME 1000
 
 // DEFINE GAS
-#define Board              ("ESP-32")
-#define Type               ("MQ-2")
+#define Board ("ESP-32")
+#define Type ("MQ-2")
 #define Voltage_Resolution (5)
 #define ADC_Bit_Resolution (12)
-#define RatioMQ2CleanAir   (9.83) //RS / R0 = 9.83 ppm
+#define RatioMQ2CleanAir (9.83) // RS / R0 = 9.83 ppm
 MQUnifiedsensor MQ2(Board, Voltage_Resolution, ADC_Bit_Resolution, ANALOG_GAS, Type);
 
 // DEFINE FIREBASE
@@ -39,6 +46,8 @@ MQUnifiedsensor MQ2(Board, Voltage_Resolution, ADC_Bit_Resolution, ANALOG_GAS, T
 #define SECRECT_KEY "t9gujxIcFO6k3k6V2LX71UO89UMReJ8rVghlMuW5"
 #define API_KEY "AIzaSyDExcDgLNEP2xf2hxtQS-nZLdFBtK-2ZzM"
 
+#define USER_EMAIL "minhtu1392000@gmail.com"
+#define USER_PASSWORD "123456789"
 // DEFINE WIFI
 #define WIFI_SSID "Asura"
 #define WIFI_PASSWORD "30121995@sura"
@@ -47,20 +56,86 @@ MQUnifiedsensor MQ2(Board, Voltage_Resolution, ADC_Bit_Resolution, ANALOG_GAS, T
 #define DHTTYPE DHT22
 DHT dht(ANALOG_TEHU, DHTTYPE);
 
-//VARIABLES
+// VARIABLES
 float gasPPM = 0;
 bool onFire = false;
 
 FirebaseData fbdo;
+FirebaseData stream;
 FirebaseAuth auth;
 FirebaseConfig config;
 
-String SENSOR_BASE_PATH = "sensor/";
-String ALERT_BASE_PATH  = "alert/";
+//Dùng define ko nối chuỗi dc
+const String SENSOR_BASE_PATH = "values/";
+const String ON_BASE_PATH = "values/";
+const String ALERT_BASE_PATH = "settings/alert/";
+const String LED_BASE_PATH = "settings/led/";
+
+bool gasAlert;
+bool fireAlert;
+
+//LED VARIABLES
+int ledBrightness = 50, ledRed = 255, ledGreen = 255, ledBlue = 255
+bool ledIsOn = false, ledIsBlinking = false;
+String ledRGBHex = "FFFFFF";
+
 
 SemaphoreHandle_t semaphore = NULL;
 
-//----------------
+void timeOutCallBack(bool timeout) {
+  if (timeout) {
+    Serial.println("Quá thời hạn callback(timeout) \n");
+  }
+  if (!stream.httpConnected()) {
+    Serial.printf("Lỗi callback: %d, lý do: %s\n\n", stream.httpCode(),
+                  stream.errorReason().c_str());
+  }
+}
+
+void alertChangedCallBack(StreamData data) {
+  if (data.dataTypeEnum() == fb_esp_rtdb_data_type_boolean) {
+    if (strcmp(data.dataPath().c_str(),"/gas") == 0) {
+      gasAlert = data.to<bool>();
+    } else 
+    if (strcmp(data.dataPath().c_str(),"/fire") == 0) {
+      fireAlert = data.to<bool>();
+    }
+  } else {
+    Serial.println("Sai định dạng, ko update bool alert");
+  }
+}
+
+void ledChangedCallBack(StreamData data){
+  if(strcmp(data.dataPath().c_str(),"/brightness") == 0){
+    
+  }
+  if(strcmp(data.dataPath().c_str(),"/RGB") == 0){
+    
+  }
+  if(strcmp(data.dataPath().c_str(),"/isBlinking") == 0){
+    
+  }
+  if(strcmp(data.dataPath().c_str(),"/isOn") == 0){
+    
+  }
+}
+
+
+
+void ledChangedCallBack(StreamData data) {
+  if (data.dataTypeEnum() == fb_esp_rtdb_data_type_boolean) {
+    if (strcmp(data.dataPath().c_str(),"/gas") == 0) {
+      gasAlert = data.to<bool>();
+    } else 
+    if (strcmp(data.dataPath().c_str(),"/fire") == 0) {
+      fireAlert = data.to<bool>();
+    }
+  } else {
+    Serial.println("Sai định dạng, ko update bool alert");
+  }
+}
+
+
 
 void initSemaphore() {
   semaphore = xSemaphoreCreateBinary();
@@ -86,13 +161,17 @@ void connectToWifi() {
 void connectToFirebase() {
   Serial.println("\nĐang kết nối tới Firebase, vui lòng chờ...");
   config.api_key = API_KEY;
-   auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
   config.database_url = DATABASE_URL;
+ 
+  auth.user.email = USER_EMAIL;
+  auth.user.password = USER_PASSWORD;
+
   Firebase.reconnectWiFi(true);
-  config.token_status_callback = tokenStatusCallback
+  fbdo.setResponseSize(4096);
+
+  config.token_status_callback = tokenStatusCallback;
   config.max_token_generation_retry = 5;
-  Firebase.begin( & config, & auth);
+  Firebase.begin(&config, &auth);
 
   Serial.println("Đang lấy User ID");
   while ((auth.token.uid) == "") {
@@ -100,16 +179,13 @@ void connectToFirebase() {
     delay(1000);
   }
   // Print user UID
-  uid = auth.token.uid.c_str();
   Serial.print("User ID: ");
-  Serial.println(uid);
-
-  
+  Serial.println(auth.token.uid.c_str());
   Serial.println("Kết nối tới Firebase thành công!");
 }
 
 // SEND DATA
-void sendGasData(void * para) {
+void sendGasData(void *para) {
   while (1) {
     MQ2.update();
     float value = MQ2.readSensor();
@@ -119,7 +195,7 @@ void sendGasData(void * para) {
   }
 }
 
-void sendTemperatureData(void * para) {
+void sendTemperatureData(void *para) {
   while (1) {
     float tempValue = dht.readTemperature();
     if (!isnan(tempValue)) {
@@ -129,7 +205,7 @@ void sendTemperatureData(void * para) {
   }
 }
 
-void sendHumidityData(void * para) {
+void sendHumidityData(void *para) {
   while (1) {
     float humidValue = dht.readHumidity();
     if (!isnan(humidValue)) {
@@ -139,7 +215,7 @@ void sendHumidityData(void * para) {
   }
 }
 
-void sendDustData(void * para) {
+void sendDustData(void *para) {
   int samplingTime = 280;
   int deltaTime = 40;
   int sleepTime = 9680;
@@ -155,28 +231,20 @@ void sendDustData(void * para) {
     digitalWrite(DUST_3, HIGH);
     delayMicroseconds(sleepTime);
     calcVoltage = voMeasured * (5.0 / 4096);
-    
-    dustDensity = 172 * calcVoltage - 0.1;
-    if(dustDensity < 0) dustDensity = 0;
 
-//    Serial.print("Raw Signal Value: ");
-//    Serial.print(voMeasured);
-//    Serial.print(" - Voltage: ");
-//    Serial.print(calcVoltage);
-//    Serial.print(" - Dust Density: ");
-//    Serial.println(dustDensity);
+    dustDensity = 172 * calcVoltage - 0.1;
+    if (dustDensity < 0)
+      dustDensity = 0;
 
     setFloat(SENSOR_BASE_PATH + "dustDensity", dustDensity);
     delay(SAMPLING_TIME);
   }
 }
-//SETTER
+// SETTER
 void setFloat(String path, float value) {
   String message = path + " - ";
-  if (xSemaphoreTake(semaphore, (TickType_t) 10) == pdTRUE) {
+  if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
     if (Firebase.setFloatAsync(fbdo, path, value)) {
-//      message.concat(value);
-//      Serial.println(message);
     } else {
       message.concat(" sent failed, REASON: ");
       Serial.println(message);
@@ -188,10 +256,8 @@ void setFloat(String path, float value) {
 
 void setBool(String path, bool value) {
   String message = path + " - ";
-  if (xSemaphoreTake(semaphore, (TickType_t) 10) == pdTRUE) {
+  if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
     if (Firebase.setBoolAsync(fbdo, path, value)) {
-//      message.concat(value);
-//      Serial.println(message);
     } else {
       message.concat(" sent failed, REASON: ");
       Serial.println(message);
@@ -201,66 +267,69 @@ void setBool(String path, bool value) {
   }
 }
 //--------ALERT--------
-void alertFire(bool alert) {
-  setBool(ALERT_BASE_PATH + "fire", alert);
+bool getGasAlertEnabled() {
+//  if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
+//    bool result;
+//    if(!Firebase.getBool(fbdo, ALERT_BASE_PATH + "gas", &result)){//Trường hợp ko get dc, thì coi như là false
+//      xSemaphoreGive(semaphore);
+//      return false;
+//    }
+//    Serial.println("Gas allowed: ");
+//    Serial.println(result);
+//    xSemaphoreGive(semaphore);
+//    return result; 
+//  }
+return gasAlert;
 }
 
-void alertGas(bool alert) {
-  setBool(ALERT_BASE_PATH + "gas", alert);
+bool getFireAlertEnabled() {
+return fireAlert
 }
 
-void fireAlertTask(void * para) {
-//  bool previousOnFire = false;
-//  alertFire(false);
+void setOnFire(bool alert) { 
+  setBool(ON_BASE_PATH + "onFire", alert); 
+}
+
+void setOnGas(bool alert) { 
+  setBool(ON_BASE_PATH + "onGas", alert); 
+}
+
+void fireAlertTask(void *para) {
   int value;
-  //delay(200);
+  // delay(200);
   while (1) {
     value = analogRead(ANALOG_FIRE);
-   Serial.println(value);
-//   Serial.println(previousOnFire);
     if (value < 3300) {
       onFire = true;
-//     if (previousOnFire == false) {
-//       previousOnFire = true;
-        alertFire(true);
+      setOnFire(true);
+      if (getFireAlertEnabled()) {
         digitalWrite(ANALOG_WHISTLE, LOW);
-//     }
+      }else{
+        digitalWrite(ANALOG_WHISTLE, HIGH);
+      }
     } else {
       onFire = false;
-//      if (previousOnFire == true) {
-//        previousOnFire = false;
-        alertFire(false);
-        digitalWrite(ANALOG_WHISTLE, HIGH);
-//     }
+      setOnFire(false);
+      digitalWrite(ANALOG_WHISTLE, HIGH);
     }
-    delay(500);
+    delay(250);
   }
 }
 
-void gasAlertTask(void * para) {
-//  bool previousOnGas = false;
-  alertGas(false);
-//  delay(200);
+void gasAlertTask(void *para) {
+  setOnGas(false);
   while (1) {
-//    Serial.println(gasPPM);
-//    Serial.println(previousOnGas);
-    if (gasPPM > 3000) {
-      if (onFire == false) {
+    if (gasPPM > 1000) {
+      if (onFire == false && getGasAlertEnabled()) {
         digitalWrite(ANALOG_WHISTLE, LOW);
         delay(500);
         digitalWrite(ANALOG_WHISTLE, HIGH);
       }
-//     if (previousOnGas == false) {
-//        previousOnGas = true;
-        alertGas(true);
-//      }
+      setOnGas(true);
     } else {
-//     if (previousOnGas == true) {
-//       previousOnGas = false;
-        alertGas(false);
-//     }
-    }   
-    delay(500);
+      setOnGas(false);
+    }
+    delay(250);
   }
 }
 
@@ -280,7 +349,7 @@ void configGasSensor() {
   MQ2.setRegressionMethod(1); //_PPM =  a*ratio^b
   MQ2.setA(574.25);
   MQ2.setB(-2.222);
-  
+
   /* Exponential regression:
     Gas    | a      | b
     H2     | 987.99 | -2.162
@@ -293,9 +362,7 @@ void configGasSensor() {
   MQ2.setR0(R0);
 }
 
-void configTehuSensor() {
-  dht.begin();
-}
+void configTehuSensor() { dht.begin(); }
 
 void configTasks() {
   xTaskCreate(fireAlertTask, "Fire Alert Task", 6000, NULL, 1, NULL);
@@ -306,9 +373,7 @@ void configTasks() {
   xTaskCreate(sendDustData, "Sending Dust Task", 6000, NULL, 1, NULL);
 }
 
-void feedWatchDog() {
-  esp_task_wdt_init(30, false);
-}
+void feedWatchDog() { esp_task_wdt_init(30, false); }
 
 void setup() {
   initSemaphore();

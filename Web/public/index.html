@@ -46,6 +46,8 @@
 
 <body class="nk-body bg-lighter npc-default has-sidebar h-100">
 
+  <div style="height: 100vh;" id="starter-section"></div>
+
   <div class="h-100" id="login-section">
     <div class="container center2 h-100">
       <div class="row justify-content-center w-100">
@@ -109,7 +111,7 @@
   </div>
 
   <!-- style="display: none;" -->
-  <div class="nk-app-root hidden" id="content-sign-in">
+  <div class="nk-app-root hidden" id="main-section">
     <!-- main @s -->
     <div class="nk-main">
       <!-- wrap @s -->
@@ -140,21 +142,21 @@
                           </div>
                           <div class="user-info d-none d-xl-block">
                             <div class="user-status user-status-verified">Xin chào người dùng</div>
-                            <div class="user-name dropdown-indicator">example@gmail.com</div>
+                            <div class="user-name dropdown-indicator user-email">example@gmail.com</div>
                           </div>
                         </div>
                       </a>
                       <div class="dropdown-menu dropdown-menu-md dropdown-menu-end">
-                        <div class="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
+                        <!-- <div class="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
                           <div class="user-card">
                             <div class="user-avatar">
                               <em class="icon ni ni-user-alt"></em>
                             </div>
                             <div class="user-info">
-                              <span class="lead-text" id="user-email">example@gmail.com</span>
+                              <span class="lead-text user-email">example@gmail.com</span>
                             </div>
                           </div>
-                        </div>
+                        </div> -->
                         <div class="dropdown-inner">
                           <ul class="link-list">
                             <li><a class="dark-switch" href="#"><em class="icon ni ni-moon"></em><span>Chế độ
@@ -182,7 +184,7 @@
                     <div class="row g-gs">
 
                       <!-- .light -->
-                      <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-sm-2 order-lg-0">
+                      <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-sm-2 order-lg-3">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner" id="content-led">
@@ -190,10 +192,11 @@
                                 <div class="card-title">
                                   <h6 class="title">Đèn</h6>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group inline">
+                                  <label>Nguồn</label>
                                   <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="led-switch" checked>
-                                    <label class="custom-control-label" for="led-switch">On</label>
+                                    <input type="checkbox" class="custom-control-input" id="led-switch">
+                                    <label class="custom-control-label" for="led-switch"></label>
                                   </div>
                                 </div>
                               </div>
@@ -202,7 +205,7 @@
                                   <div class="inline">
                                     <span class="info function">Độ sáng</span>
                                     <input type="range" min="0" max="100" step="1" class="sliderB" id="sliderB"
-                                      value="50" onchange="updateSliderValue()">
+                                      value="50">
                                     <span class="textSliderValue" id="textSliderValue">50</span> &#37
                                   </div>
                                 </div>
@@ -227,19 +230,20 @@
                       </div>
 
                       <!-- .col -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-1 order-lg-1">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-1 order-lg-1"
+                        id="content-gasPPM">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner" id="content-gas">
+                            <div class="card-inner">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
-                                  <h6 class="title">Nồng độ ga</h6>
+                                  <h6 class="title ">Nồng độ ga</h6>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group inline">
+                                  <label>Cảnh báo</label>
                                   <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input"
-                                      onchange="setSensorEnabled('#content-gas',this.checked)" id="gas-switch" checked>
-                                    <label class="custom-control-label" for="gas-switch">On</label>
+                                    <input type="checkbox" class="custom-control-input" id="gas-switch">
+                                    <label class="custom-control-label" for="gas-switch"></label>
                                   </div>
                                 </div>
 
@@ -247,13 +251,13 @@
                               <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id="value-gasPPM"></span> PPM</div>
+                                    <div class="amount"><span id="value-gasPPM"></span> <span class="unit"> PPM</span></div>
                                     <div class="nk-ecwg6-ck">
-                                      <canvas class="ecommerce-line-chart-s3" id="todayVisitors"></canvas>
+                                      <canvas class="live-chart" id="gasPPM_60sec"></canvas>
                                     </div>
                                   </div>
                                   <div class="info">
-                                    <span class="change down text-danger">Nồng độ ga cao bất thường</span>
+                                    <span class="info2">Nồng độ ga cao bất thường</span>
                                   </div>
                                 </div>
                                 <div class="sub-content"></div>
@@ -269,7 +273,7 @@
                       <!-- .col -->
 
                       <!-- .light -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-3 order-lg-2">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-3 order-lg-2" id="content-temperature">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner">
@@ -279,16 +283,16 @@
                                 </div>
 
                               </div>
-                              <div class="data" id="content-temp">
+                              <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id="value-temp"> </span>°C</div>
+                                    <div class="amount"><span id="value-temperature"> </span><span class="unit"> °C</span></div>
                                     <div class="nk-ecwg6-ck">
-                                      <canvas class="ecommerce-line-chart-s3" id="todayOrders"></canvas>
+                                      <canvas class="live-chart" id="temperature_60sec"></canvas>
                                     </div>
                                   </div>
                                   <div class="info">
-                                    <span>Nhiệt độ bình thường</span>
+                                    <span class="info2">Nhiệt độ bình thường</span>
                                   </div>
                                 </div>
                                 <div class="sub-content"></div>
@@ -302,10 +306,10 @@
                       </div>
 
                       <!-- .col -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-4 order-lg-4">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-4 order-lg-4" id="content-humidity">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner" id="content-humid">
+                            <div class="card-inner">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
                                   <h6 class="title">Độ ẩm</h6>
@@ -315,13 +319,13 @@
                               <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id="value-humid"> </span> %</div>
+                                    <div class="amount"><span id="value-humidity"> </span> <span class="unit"> %</span></div>
                                     <div class="nk-ecwg6-ck">
-                                      <canvas class="ecommerce-line-chart-s3" id="todayRevenue"></canvas>
+                                      <canvas class="live-chart" id="humidity_60sec"></canvas>
                                     </div>
                                   </div>
                                   <div class="info">
-                                    <span class="change down text-danger">Độ ẩm cao</span>
+                                    <span class="info2">Độ ẩm cao</span>
                                   </div>
                                 </div>
                                 <div class="sub-content"></div>
@@ -337,32 +341,50 @@
 
 
 
-                      <!-- flame -->
-                      <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-sm-0 order-lg-3">
-                        <div class="card flame-detected-color" id="card-fire">
+                      <!-- fire -->
+                      <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-sm-0 order-lg-0" id="content-fire">
+                        <div class="card" id="card-fire">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner" id="content-fire">
+                            <div class="card-inner">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
-                                  <h6 class="title flame-detected-color" id="title-fire">Cảm biến lửa
+                                  <h6 class="title" id="title-fire">Cảm biến lửa
                                     <h6 />
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group inline">
+                                  <label>Cảnh báo</label>
                                   <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input"
-                                      onchange="setSensorEnabled('#content-fire',this.checked)" id="fire-switch"
-                                      checked>
-                                    <label class="custom-control-label" for="fire-switch">On</label>
+                                    <input type="checkbox" class="custom-control-input" id="fire-switch">
+                                    <label class="custom-control-label" for="fire-switch"></label>
                                   </div>
                                 </div>
                               </div>
-                              <div class="data">
+                              <div class="data hidden" id="on-fire-false">
                                 <div class="main-content">
-                                  <div>
-                                    Phát hiện có lửa
+                                  <div style="min-height: 80px; display:flex; align-items:center; justify-content:center">
+                                      <div class="sleep-img">&nbsp;</div>
                                   </div>
-                                  <div class="center mt-1">
-                                    <div class="flame-detected-img">&nbsp;</div>
+                                  
+                                  <div class="info">
+                                    <div class="fire-safe info2">
+                                      Không phát hiện có lửa
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="sub-content"></div>
+
+                              </div>
+
+                              <div class="data" id="on-fire-true">
+                                <div class="main-content">
+                                  <div style="min-height: 80px; display:flex; align-items:center; justify-content:center">
+                                      <div class="fire-detected-img" id="fire-img">&nbsp;</div>
+                                  </div>
+                                  
+                                  <div class="info">
+                                    <div class="alerting-color info2">
+                                      Phát hiện có lửa
+                                    </div>
                                   </div>
                                 </div>
                                 <div class="sub-content"></div>
@@ -375,15 +397,15 @@
                         </div>
                         <!-- .card -->
                       </div>
-                      <!-- flame -->
+                      <!-- fire -->
 
 
 
                       <!-- .col -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-5 order-lg-5">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-5 order-lg-5" id="content-dust-density">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
-                            <div class="card-inner" id="content-dust">
+                            <div class="card-inner">
                               <div class="card-title-group nk-footer-wrap">
                                 <div class="card-title">
                                   <h6 class="title">Nồng độ bụi</h6>
@@ -393,13 +415,13 @@
                               <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id="value-dust"> </span> µg/m³</div>
+                                    <div class="amount"><span id="value-dust-density"> </span><span class="unit"> µg/m³</span></div>
                                     <div class="nk-ecwg6-ck">
-                                      <canvas class="ecommerce-line-chart-s3" id="todayCustomers"></canvas>
+                                      <canvas class="live-chart" id="dustDensity_60sec"></canvas>
                                     </div>
                                   </div>
                                   <div class="info">
-                                    <span class="change up text-danger">
+                                    <span class="info2">
                                       Nồng độ bụi thấp</span>
                                   </div>
                                 </div>
@@ -456,10 +478,12 @@
   <!-- JavaScript -->
   <script src="/assets/js/original/bundle.js?ver=3.0.0"></script>
   <script src="/assets/js/original/scripts.js?ver=3.0.0"></script>
-  <script src="/assets/js/original/chart-ecommerce.js"></script>
 
-  <script src="/assets/js/custom/ui-control.js"></script>
-  <script src="/assets/js/custom/dashboard-update.js"></script>
+  <script>
+    var vGasPPM, vDustDensity, vTemperature, vHumidity, vOnFire, vOnGas;
+  </script>
+  <script src="/assets/js/custom/live-chart.js"></script>
+  <script src="/assets/js/custom/values-control.js"></script>
   <script src="/assets/js/custom/auth.js"></script>
 </body>
 
