@@ -13,19 +13,25 @@ const gasPPMElement = document.getElementById("value-gasPPM");
 const dustElement = document.getElementById("value-dust-density");
 const floatElements = [tempElement, humidElement, gasPPMElement, dustElement];
 
-// FLOAT REFERENCES
-const tempRef = db.ref().child("values/temperature");
-const humidRef = db.ref().child("values/humidity");
-const gasPPMRef = db.ref().child("values/gasPPM");
-const dustRef = db.ref().child("values/dustDensity");
-
+// VALUES REFERENCES
+const tempRef = db.ref("values/temperature");
+const humidRef = db.ref("values/humidity");
+const gasPPMRef = db.ref("values/gasPPM");
+const dustRef = db.ref("values/dustDensity");
 const floatReferences = [tempRef, humidRef, gasPPMRef, dustRef];
 
-// BOOL REFERENCES
-const onFireRef = db.ref().child("values/onFire");
-const onGasRef = db.ref().child("values/onGas");
-const fireAlertRef = db.ref().child("settings/alert/fire");
-const gasAlertRef = db.ref().child("settings/alert/gas");
+const onFireRef = db.ref("values/onFire");
+const onGasRef = db.ref("values/onGas");
+
+
+// SETTINGS REFERENCES
+const fireAlertRef = db.ref("settings/alert/fire");
+const gasAlertRef = db.ref("settings/alert/gas");
+
+const ledBrightnessRef = db.ref("settings/led/brightness");
+const ledRGBRef = db.ref("settings/led/RGB");
+const ledIsOnRef = db.ref("settings/led/isOn");
+const ledIsBlinkingRef = db.ref("settings/led/isBlinking");
 
 // CONTENS
 const fireContent = document.getElementById('content-fire');
@@ -43,9 +49,11 @@ fireSwitch.contentId = 'content-fire';
 
 const sliderBrightness = document.getElementById('sliderB');
 const fireIMG = document.getElementById("fire-img")
-// VARIABLES
-
-
+const buttonSelectColor = document.getElementById('button-select-color');
+const onSwitch = document.getElementById('on-switch');
+const blinkingSwitch = document.getElementById('blinking-switch');
+const hexInput = document.getElementById('hex-input');
+const sliderElement = document.getElementById('sliderB');
 
 function setEmailToUI(email) {
   Array.prototype.forEach.call(userEmailElements, function (element) {
@@ -79,7 +87,8 @@ function changeSection(user) {
   }
 };
 
-function addFloatChangedEL() {
+
+function addValueChangedEventListener() {
   var length = floatElements.length;
   for (let i = 0; i < length; i++) {
     floatReferences[i].on("value", (snap) => {
@@ -87,41 +96,40 @@ function addFloatChangedEL() {
       setFloatInfo(floatElements[i], value);
     });
   }
+
+  onFireRef.on('value', onFireEventHandler)
+  onGasRef.on('value', onGasEventHandler)
 }
 
-function addBoolChangedEL() {
-  onFireRef.on('value', (snap) => {
-    vOnFire = snap.val();
-    var nodes = fireContent.querySelectorAll(".title, .card");
-    if (vOnFire) {
-      setHidden(document.getElementById("on-fire-true"), false);
-      setHidden(document.getElementById("on-fire-false"), true);
+function addSettingChangedEventListener() {
+  fireAlertRef.on('value', (snap) => {
+    fireSwitch.checked = snap.val();
+    fireSwitchEventHandler();
+  });
+  gasAlertRef.on('value', (snap) => {
+    gasSwitch.checked = snap.val();
+    gasSwitchEventHandler();
+  });
 
-      fireSwitchEventHandler();
+  ledBrightnessRef.on('value', (snap) => {
+    var value = snap.val();
+    sliderElement.setAttribute('value', value);
+    document.getElementById('textSliderValue').innerHTML = value;
+  });
 
-    } else {
-      setHidden(document.getElementById("on-fire-false"), false);
-      setHidden(document.getElementById("on-fire-true"), true);
+  ledRGBRef.on('value', (snap) => {
+    var value = snap.val();
+    hexInput.value = value
+    hexInput.style.backgroundColor = '#' + value.toString();
+  });
 
-      Array.prototype.forEach.call(nodes, function (element) {
-        element.classList.remove("alerting-color");
-      });
-    }
-  })
+  ledIsOnRef.on('value', (snap) => {
+    onSwitch.checked = snap.val();
+  });
 
-  onGasRef.on('value', (snap) => {
-    vOnGas = snap.val();
-    var nodes = document.getElementById("content-gasPPM").querySelectorAll(".title, .card, .amount");
-    if (vOnGas) {
-      Array.prototype.forEach.call(nodes, function (element) {
-        element.classList.add("alerting-color");
-      });
-    } else {
-      Array.prototype.forEach.call(nodes, function (element) {
-        element.classList.remove("alerting-color");
-      });
-    }
-  })
+  ledIsBlinkingRef.on('value', (snap) => {
+    blinkingSwitch.checked = snap.val();
+  });
 }
 
 function setFloatInfo(element, value) {
@@ -231,9 +239,41 @@ function getGasInfo(value) {
   return obj;
 }
 
+function onFireEventHandler(snap) {
+  vOnFire = snap.val();
+  var nodes = fireContent.querySelectorAll(".title, .card");
+  if (vOnFire) {
+    setHidden(document.getElementById("on-fire-true"), false);
+    setHidden(document.getElementById("on-fire-false"), true);
+
+    fireSwitchEventHandler();
+
+  } else {
+    setHidden(document.getElementById("on-fire-false"), false);
+    setHidden(document.getElementById("on-fire-true"), true);
+
+    Array.prototype.forEach.call(nodes, function (element) {
+      element.classList.remove("alerting-color");
+    });
+  }
+}
+
+function onGasEventHandler(snap) {
+  vOnGas = snap.val();
+  var nodes = document.getElementById("content-gasPPM").querySelectorAll(".title, .card, .amount");
+  if (vOnGas) {
+    Array.prototype.forEach.call(nodes, function (element) {
+      element.classList.add("alerting-color");
+    });
+  } else {
+    Array.prototype.forEach.call(nodes, function (element) {
+      element.classList.remove("alerting-color");
+    });
+  }
+}
+
 function sliderBEventHandler() {
-  var ledValue = document.getElementById('sliderB').value;
-  document.getElementById('textSliderValue').innerHTML = ledValue;
+
 }
 function fireSwitchEventHandler(evt) {
   var alert = fireSwitch.checked;
@@ -256,7 +296,7 @@ function fireSwitchEventHandler(evt) {
     }
   }
 }
-function gasSwitchEventHandler(evt) {
+function gasSwitchEventHandler() {
   var alert = gasSwitch.checked;
   gasAlertRef.set(alert);
   if (vOnGas) {
@@ -271,14 +311,29 @@ function gasSwitchEventHandler(evt) {
       });
     }
   }
-
 }
+
 function addAllEeventListeners() {
-  addFloatChangedEL();
-  addBoolChangedEL();
-  sliderBrightness.addEventListener('change', sliderBEventHandler);
+  addValueChangedEventListener();
+  addSettingChangedEventListener();
+
+  sliderBrightness.addEventListener('change', () => {
+    var ledBrightness = document.getElementById('sliderB').value;
+    document.getElementById('textSliderValue').innerHTML = ledBrightness;
+    ledBrightnessRef.set(parseInt(ledBrightness));
+  });
+
   fireSwitch.addEventListener('change', fireSwitchEventHandler);
   gasSwitch.addEventListener('change', gasSwitchEventHandler);
+  onSwitch.addEventListener('change', () => {
+    ledIsOnRef.set(onSwitch.checked);
+  });
+  blinkingSwitch.addEventListener('change', () => {
+    ledIsBlinkingRef.set(blinkingSwitch.checked);
+  });
+  buttonSelectColor.addEventListener('click', () => {
+    ledRGBRef.set(hexInput.value);
+  });
 }
 
 function loadSettings() {
@@ -287,9 +342,11 @@ function loadSettings() {
       var fireAlert = snap.val();
       if (fireAlert) {
         fireSwitch.checked = true;
+
       } else {
         fireSwitch.checked = false;
       }
+      fireSwitchEventHandler();
     });
   gasAlertRef.once('value')
     .then(function (snap) {
@@ -299,6 +356,7 @@ function loadSettings() {
       } else {
         gasSwitch.checked = false;
       }
+      gasSwitchEventHandler();
     });
 
 }

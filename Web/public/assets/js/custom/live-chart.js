@@ -177,7 +177,7 @@ function updateChart(chart) {
     }
     length = array.length;
     array.unshift(value);
-    console.log(chart + ': ' + value);
+    //console.log(chart + ': ' + value);
     if (length > 61) {
         array.pop();
     }

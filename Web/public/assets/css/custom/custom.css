@@ -39,39 +39,21 @@
   border-radius: 34px;
 }
 
-input[type="checkbox"]:checked+.slider {
-  background-color: #854FFF;
-  border-color: #854FFF;
-}
-
-input[type="checkbox"]:checked+.slider::before {
-  background-color: #DBDFEA;
-}
-
-input[type="checkbox"]:checked+.slider:before {
-  -webkit-transform: translateX(25px);
-  -ms-transform: translateX(25px);
-  transform: translateX(25px);
-  border-radius: 50%;
-}
 
 .inline {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .function {
   width: 70px;
 }
 
-
-
 .sliderB {
   -webkit-appearance: none;
-  margin-left: 10px;
   width: 50%;
   height: 10px;
   border-radius: 34px;
@@ -140,7 +122,7 @@ input[type="text"]:focus {
 }
 
 .card-min-height {
-  min-height: 210px;
+  min-height: 220px;
 }
 
 .title-min-width {
@@ -209,4 +191,12 @@ input[type="text"]:focus {
 
 .unit {
   font-size: 1.25rem !important;
+}
+
+#hex-input{
+  padding-block: 0rem;
+}
+
+#button-select-color{
+  padding-block: 0.1rem;
 }
