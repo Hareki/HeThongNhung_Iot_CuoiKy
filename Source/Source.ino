@@ -113,40 +113,67 @@ bool dataIsString(StreamData data) { return data.dataTypeEnum() == fb_esp_rtdb_d
 bool dataIsNull(StreamData data) { return data.dataTypeEnum() == fb_esp_rtdb_data_type_null; }
 bool dataIsJson(StreamData data) { return data.dataTypeEnum() == fb_esp_rtdb_data_type_json; }
 
+//void loadSettings() {
+//  Serial.println("Loading settings...");
+//  if (!Firebase.getInt(fbdo, LED_BASE_PATH + "brightness")) Serial.println("fail BR");
+//  ledBrightness = fbdo.to<int>();
+//  setBrightness(ledBrightness);
+//  Serial.println(ledBrightness);
+//
+//  if (!Firebase.getBool(fbdo, LED_BASE_PATH + "isBlinking")) Serial.println("fail BR");
+//  ledIsBlinking = fbdo.to<bool>();
+//  setBlinking(ledIsBlinking);
+//  Serial.println(ledIsBlinking);
+//
+//  if (!Firebase.getBool(fbdo, LED_BASE_PATH + "isOn")) Serial.println("fail BR");
+//  ledIsOn = fbdo.to<bool>();
+//  setPower(ledIsOn);
+//  Serial.println(ledIsOn);
+//
+//  if (!Firebase.getString(fbdo, LED_BASE_PATH + "RGB")) Serial.println("fail BR");
+//  ledRGBHex = fbdo.to<String>();
+//  setRGB(ledRGBHex);
+//  Serial.println(ledRGBHex);
+//
+//  if (!Firebase.getBool(fbdo, ALERT_BASE_PATH + "gas")) Serial.println("fail BR");
+//  gasAlert = fbdo.to<bool>();
+//  Serial.println(gasAlert);
+//
+//  if (!Firebase.getBool(fbdo, ALERT_BASE_PATH + "fire")) Serial.println("fail BR");
+//  fireAlert = fbdo.to<bool>();
+//  Serial.println(fireAlert);
+//
+//  Serial.println("done loading settings");
+//}
+
 void loadSettings() {
   Serial.println("Loading settings...");
-  while (!Firebase.getInt(fbdo, LED_BASE_PATH + "brightness")) {
-  };
+  if (!Firebase.getInt(fbdo, "settings/led/brightness")) Serial.println("fail BR");
   ledBrightness = fbdo.to<int>();
-  setBrightness(ledBrightness);
+//  setBrightness(ledBrightness);
   Serial.println(ledBrightness);
 
-  while (!Firebase.getBool(fbdo, LED_BASE_PATH + "isBlinking")) {
-  };
+  if (!Firebase.getBool(fbdo, "settings/led/isBlinking")) Serial.println("fail BR");
   ledIsBlinking = fbdo.to<bool>();
-  setBlinking(ledIsBlinking);
+ // setBlinking(ledIsBlinking);
   Serial.println(ledIsBlinking);
 
-  while (!Firebase.getBool(fbdo, LED_BASE_PATH + "isOn")) {
-  };
+  if (!Firebase.getBool(fbdo, "settings/led/isOn")) Serial.println("fail BR");
   ledIsOn = fbdo.to<bool>();
-  setPower(ledIsOn);
+//  setPower(ledIsOn);
   Serial.println(ledIsOn);
 
-  while (!Firebase.getString(fbdo, LED_BASE_PATH + "RGB")) {
-  };
+  if (!Firebase.getString(fbdo, "settings/led/RGB")) Serial.println("fail BR");
   ledRGBHex = fbdo.to<String>();
-  setRGB(ledRGBHex);
+//  setRGB(ledRGBHex);
   Serial.println(ledRGBHex);
 
-  while (!Firebase.getBool(fbdo, ALERT_BASE_PATH + "gas")) {
-  };
-  gasAlert = fbdo.to<bool>();
+  if (!Firebase.getBool(fbdo, "settings/alert/gas")) Serial.println("fail BR");
+ // gasAlert = fbdo.to<bool>();
   Serial.println(gasAlert);
 
-  while (!Firebase.getBool(fbdo, ALERT_BASE_PATH + "fire")) {
-  };
-  fireAlert = fbdo.to<bool>();
+  if (!Firebase.getBool(fbdo, "settings/alert/fire")) Serial.println("fail BR");
+ // fireAlert = fbdo.to<bool>();
   Serial.println(fireAlert);
 
   Serial.println("done loading settings");
@@ -279,24 +306,25 @@ void connectToFirebase() {
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
 
-  auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
+//  auth.user.email = USER_EMAIL;
+//  auth.user.password = USER_PASSWORD;
 
   Firebase.reconnectWiFi(true);
   fbdo.setResponseSize(4096);
 
-  config.token_status_callback = tokenStatusCallback;
-  config.max_token_generation_retry = 10;
+  config.signer.tokens.legacy_token = SECRECT_KEY;
+  //config.token_status_callback = tokenStatusCallback;
+//  config.max_token_generation_retry = 10;
   Firebase.begin(&config, &auth);
 
   Serial.println("Đang chờ lấy User ID...");
-  while ((auth.token.uid) == "") {
-    Serial.print('.');
-    delay(1000);
-  }
+//  while ((auth.token.uid) == "") {
+//    Serial.print('.');
+//    delay(1000);
+//  }
   // Print user UID
   Serial.print("User ID: ");
-  Serial.println(auth.token.uid.c_str());
+//  Serial.println(auth.token.uid.c_str());
   Serial.println("Kết nối tới Firebase thành công!");
 }
 /*========= END OF CONNECTION MEDTHODS =========*/
@@ -352,6 +380,9 @@ void sendDustData(void *para) {
     dustDensity = 172 * calcVoltage - 0.1;
     if (dustDensity < 0) dustDensity = 0;
 
+    Serial.println("RAW DUST ANALOG: ");
+    Serial.println(voMeasured);
+    
     setFloat(SENSOR_BASE_PATH + "dustDensity", dustDensity);
     delay(SAMPLING_TIME);
   }
@@ -407,9 +438,9 @@ void setFloat(String path, float value) {
   if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
     if (Firebase.setFloatAsync(fbdo, path, value)) {
     } else {
-      message.concat(" sent failed, REASON: ");
-      Serial.println(message);
-      Serial.println(fbdo.errorReason().c_str());
+//      message.concat(" sent failed, REASON: ");
+//      Serial.println(message);
+//      Serial.println(fbdo.errorReason().c_str());
     }
     xSemaphoreGive(semaphore);
   }
@@ -420,9 +451,9 @@ void setBool(String path, bool value) {
   if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
     if (Firebase.setBoolAsync(fbdo, path, value)) {
     } else {
-      message.concat(" sent failed, REASON: ");
-      Serial.println(message);
-      Serial.println(fbdo.errorReason().c_str());
+//      message.concat(" sent failed, REASON: ");
+//      Serial.println(message);
+//      Serial.println(fbdo.errorReason().c_str());
     }
     xSemaphoreGive(semaphore);
   }
@@ -479,12 +510,12 @@ void configGasSensor() {
 void configTehuSensor() { dht.begin(); }
 
 void configTasks() {
-  xTaskCreate(fireAlertTask, "Fire Alert Task", 6000, NULL, 1, NULL);
-  xTaskCreate(gasAlertTask, "Gas Alert Task", 6000, NULL, 1, NULL);
-  xTaskCreate(sendTemperatureData, "Sending Temperature Task", 6000, NULL, 1, NULL);
-  xTaskCreate(sendHumidityData, "Sending Humidity Task", 6000, NULL, 1, NULL);
-  xTaskCreate(sendGasData, "Sending Gas Task", 6000, NULL, 1, NULL);
-  xTaskCreate(sendDustData, "Sending Dust Task", 6000, NULL, 1, NULL);
+//  xTaskCreate(fireAlertTask, "Fire Alert Task", 6000, NULL, configMAX_PRIORITIES - 1, NULL);
+//  xTaskCreate(gasAlertTask, "Gas Alert Task", 6000, NULL, 1, NULL);
+//  xTaskCreate(sendTemperatureData, "Sending Temperature Task", 6000, NULL, 1, NULL);
+//  xTaskCreate(sendHumidityData, "Sending Humidity Task", 6000, NULL, 1, NULL);
+//  xTaskCreate(sendGasData, "Sending Gas Task", 6000, NULL, 1, NULL);
+  xTaskCreate(sendDustData, "Sending Dust Task", 6000, NULL, configMAX_PRIORITIES - 1, NULL);
 }
 
 void configWatchDog() { esp_task_wdt_init(30, false); }
@@ -495,20 +526,45 @@ void setup() {
   Serial.begin(115200);
   connectToWifi();
   connectToFirebase();
-
-  loadSettings();
-  if (beginSettingChangesListener()) {
+//
+//  loadSettings();
+//  if (beginSettingChangesListener()) {
     configIO();
     configLed();
     configGasSensor();
     configTehuSensor();
     configTasks();
-  } else {
-    Serial.println("ERROR - Lỗi khi cố gắng thiết lập kết nối nhận giá trị thay đổi, ngừng chương trình...");
-  }
+//  } else {
+//    Serial.println("ERROR - Lỗi khi cố gắng thiết lập kết nối nhận giá trị thay đổi, ngừng chương trình...");
+//  }
 }
-
+//  int samplingTime = 280;
+//  int deltaTime = 40;
+//  int sleepTime = 9680;
+//
+//  float voMeasured = 0;
+//  float calcVoltage = 0;
+//  float dustDensity = 0;
 void loop() {
-  configWatchDog();
-  delay(25000);
+//  configWatchDog();
+//  delay(25000);
+
+
+//    digitalWrite(DUST_3, LOW);
+//    delayMicroseconds(samplingTime);
+//    voMeasured = analogRead(DUST_5);
+//    delayMicroseconds(deltaTime);
+//    digitalWrite(DUST_3, HIGH);
+//    delayMicroseconds(sleepTime);
+//    calcVoltage = voMeasured * (5.0 / 4096);
+//
+//    dustDensity = 172 * calcVoltage - 0.1;
+//    if (dustDensity < 0) dustDensity = 0;
+//
+//    Serial.println("RAW DUST ANALOG: ");
+//    Serial.println(voMeasured);
+//    
+////    setFloat(SENSOR_BASE_PATH + "dustDensity", dustDensity);
+//    delay(SAMPLING_TIME);
+  
 }
