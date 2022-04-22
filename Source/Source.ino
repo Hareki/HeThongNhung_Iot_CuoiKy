@@ -54,10 +54,13 @@ DHT dht(ANALOG_TEHU, DHTTYPE);
 /*========= END OF DEFINE SENSORS =========*/
 
 /*========= DEFINE COMMON VARIABLES =========*/
-#define SAMPLING_TIME 1000
-#define CHECKING_GAS_FIRE_TIME 250
 #define GASPPM_GREATER_THRESHOLD 1000
 #define FIRE_LOWER_THRESHOLD 330
+const TickType_t TASK_DELAY_TIME = 1000 / portTICK_PERIOD_MS;
+const TickType_t CHECKING_GAS_FIRE_TIME = 250 / portTICK_PERIOD_MS;
+
+#define TASK_DELAY_TIME_2 1000
+#define CHECKING_GAS_FIRE_TIME_2 250
 
 #define LED_FREQUENCY 5000
 #define LED_RESOLUTION 8
@@ -306,25 +309,25 @@ void connectToFirebase() {
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
 
-//  auth.user.email = USER_EMAIL;
-//  auth.user.password = USER_PASSWORD;
+  auth.user.email = USER_EMAIL;
+  auth.user.password = USER_PASSWORD;
 
   Firebase.reconnectWiFi(true);
   fbdo.setResponseSize(4096);
 
-  config.signer.tokens.legacy_token = SECRECT_KEY;
-  //config.token_status_callback = tokenStatusCallback;
-//  config.max_token_generation_retry = 10;
+//  config.signer.tokens.legacy_token = SECRECT_KEY;
+  config.token_status_callback = tokenStatusCallback;
+  config.max_token_generation_retry = 10;
   Firebase.begin(&config, &auth);
 
   Serial.println("Đang chờ lấy User ID...");
-//  while ((auth.token.uid) == "") {
-//    Serial.print('.');
-//    delay(1000);
-//  }
+  while ((auth.token.uid) == "") {
+    Serial.print('.');
+    delay(1000);
+  }
   // Print user UID
   Serial.print("User ID: ");
-//  Serial.println(auth.token.uid.c_str());
+  Serial.println(auth.token.uid.c_str());
   Serial.println("Kết nối tới Firebase thành công!");
 }
 /*========= END OF CONNECTION MEDTHODS =========*/
@@ -336,7 +339,7 @@ void sendGasData(void *para) {
     float value = MQ2.readSensor();
     gasPPM = value;
     setFloat(SENSOR_BASE_PATH + "gasPPM", value);
-    delay(SAMPLING_TIME);
+    vTaskDelay(TASK_DELAY_TIME);
   }
 }
 
@@ -346,7 +349,7 @@ void sendTemperatureData(void *para) {
     if (!isnan(tempValue)) {
       setFloat(SENSOR_BASE_PATH + "temperature", tempValue);
     }
-    delay(SAMPLING_TIME);
+    vTaskDelay(TASK_DELAY_TIME);
   }
 }
 
@@ -356,7 +359,7 @@ void sendHumidityData(void *para) {
     if (!isnan(humidValue)) {
       setFloat(SENSOR_BASE_PATH + "humidity", humidValue);
     }
-    delay(SAMPLING_TIME);
+    vTaskDelay(TASK_DELAY_TIME);
   }
 }
 
@@ -369,22 +372,28 @@ void sendDustData(void *para) {
   float calcVoltage = 0;
   float dustDensity = 0;
   while (1) {
-    digitalWrite(DUST_3, LOW);
-    delayMicroseconds(samplingTime);
-    voMeasured = analogRead(DUST_5);
-    delayMicroseconds(deltaTime);
-    digitalWrite(DUST_3, HIGH);
-    delayMicroseconds(sleepTime);
-    calcVoltage = voMeasured * (5.0 / 4096);
+    if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
+      digitalWrite(DUST_3, LOW);
+      delayMicroseconds(samplingTime);
+      voMeasured = analogRead(DUST_5);
+      delayMicroseconds(deltaTime);
+      digitalWrite(DUST_3, HIGH);
+      delayMicroseconds(sleepTime);
+      calcVoltage = voMeasured * (5.0 / 4096);
 
-    dustDensity = 172 * calcVoltage - 0.1;
-    if (dustDensity < 0) dustDensity = 0;
+      dustDensity = 172 * calcVoltage - 0.1;
+      if (dustDensity < 0) dustDensity = 0;
+ 
+      Serial.println("RAW DUST ANALOG: ");
+      Serial.println(voMeasured);
 
-    Serial.println("RAW DUST ANALOG: ");
-    Serial.println(voMeasured);
+      setFloat(SENSOR_BASE_PATH + "dustDensity", dustDensity);  
+      vTaskDelay(TASK_DELAY_TIME);
+      xSemaphoreGive(semaphore);
+    }
     
-    setFloat(SENSOR_BASE_PATH + "dustDensity", dustDensity);
-    delay(SAMPLING_TIME);
+  
+
   }
 }
 /*========= END OF SEND FLOAT VALUES  =========*/
@@ -410,7 +419,7 @@ void fireAlertTask(void *para) {
       setOnFire(false);
       digitalWrite(ANALOG_WHISTLE, HIGH);
     }
-    delay(CHECKING_GAS_FIRE_TIME);
+    delay(CHECKING_GAS_FIRE_TIME_2);
   }
 }
 
@@ -420,14 +429,14 @@ void gasAlertTask(void *para) {
     if (gasPPM > GASPPM_GREATER_THRESHOLD) {
       if (onFire == false && getGasAlertEnabled()) {
         digitalWrite(ANALOG_WHISTLE, LOW);
-        delay(500);
+        vTaskDelay(TASK_DELAY_TIME);
         digitalWrite(ANALOG_WHISTLE, HIGH);
       }
       setOnGas(true);
     } else {
       setOnGas(false);
     }
-    delay(CHECKING_GAS_FIRE_TIME);
+    delay(CHECKING_GAS_FIRE_TIME_2);
   }
 }
 /*========= END OF SEND BOOL VALUES  =========*/
@@ -438,9 +447,9 @@ void setFloat(String path, float value) {
   if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
     if (Firebase.setFloatAsync(fbdo, path, value)) {
     } else {
-//      message.concat(" sent failed, REASON: ");
-//      Serial.println(message);
-//      Serial.println(fbdo.errorReason().c_str());
+      message.concat(" sent failed, REASON: ");
+      Serial.println(message);
+      Serial.println(fbdo.errorReason().c_str());
     }
     xSemaphoreGive(semaphore);
   }
@@ -451,9 +460,9 @@ void setBool(String path, bool value) {
   if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
     if (Firebase.setBoolAsync(fbdo, path, value)) {
     } else {
-//      message.concat(" sent failed, REASON: ");
-//      Serial.println(message);
-//      Serial.println(fbdo.errorReason().c_str());
+      message.concat(" sent failed, REASON: ");
+      Serial.println(message);
+      Serial.println(fbdo.errorReason().c_str());
     }
     xSemaphoreGive(semaphore);
   }
@@ -510,11 +519,11 @@ void configGasSensor() {
 void configTehuSensor() { dht.begin(); }
 
 void configTasks() {
-//  xTaskCreate(fireAlertTask, "Fire Alert Task", 6000, NULL, configMAX_PRIORITIES - 1, NULL);
-//  xTaskCreate(gasAlertTask, "Gas Alert Task", 6000, NULL, 1, NULL);
-//  xTaskCreate(sendTemperatureData, "Sending Temperature Task", 6000, NULL, 1, NULL);
-//  xTaskCreate(sendHumidityData, "Sending Humidity Task", 6000, NULL, 1, NULL);
-//  xTaskCreate(sendGasData, "Sending Gas Task", 6000, NULL, 1, NULL);
+  xTaskCreate(fireAlertTask, "Fire Alert Task", 6000, NULL, 1, NULL);
+  xTaskCreate(gasAlertTask, "Gas Alert Task", 6000, NULL, 1, NULL);
+  xTaskCreate(sendTemperatureData, "Sending Temperature Task", 6000, NULL, 1, NULL);
+  xTaskCreate(sendHumidityData, "Sending Humidity Task", 6000, NULL, 1, NULL);
+  xTaskCreate(sendGasData, "Sending Gas Task", 6000, NULL, 1, NULL);
   xTaskCreate(sendDustData, "Sending Dust Task", 6000, NULL, configMAX_PRIORITIES - 1, NULL);
 }
 
@@ -526,11 +535,11 @@ void setup() {
   Serial.begin(115200);
   connectToWifi();
   connectToFirebase();
-//
+
 //  loadSettings();
 //  if (beginSettingChangesListener()) {
     configIO();
-    configLed();
+//    configLed();
     configGasSensor();
     configTehuSensor();
     configTasks();
@@ -538,33 +547,8 @@ void setup() {
 //    Serial.println("ERROR - Lỗi khi cố gắng thiết lập kết nối nhận giá trị thay đổi, ngừng chương trình...");
 //  }
 }
-//  int samplingTime = 280;
-//  int deltaTime = 40;
-//  int sleepTime = 9680;
-//
-//  float voMeasured = 0;
-//  float calcVoltage = 0;
-//  float dustDensity = 0;
+
 void loop() {
 //  configWatchDog();
-//  delay(25000);
-
-
-//    digitalWrite(DUST_3, LOW);
-//    delayMicroseconds(samplingTime);
-//    voMeasured = analogRead(DUST_5);
-//    delayMicroseconds(deltaTime);
-//    digitalWrite(DUST_3, HIGH);
-//    delayMicroseconds(sleepTime);
-//    calcVoltage = voMeasured * (5.0 / 4096);
-//
-//    dustDensity = 172 * calcVoltage - 0.1;
-//    if (dustDensity < 0) dustDensity = 0;
-//
-//    Serial.println("RAW DUST ANALOG: ");
-//    Serial.println(voMeasured);
-//    
-////    setFloat(SENSOR_BASE_PATH + "dustDensity", dustDensity);
-//    delay(SAMPLING_TIME);
-  
+//  delay(25000); 
 }
