@@ -309,25 +309,25 @@ void connectToFirebase() {
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
 
-  auth.user.email = USER_EMAIL;
-  auth.user.password = USER_PASSWORD;
+//  auth.user.email = USER_EMAIL;
+//  auth.user.password = USER_PASSWORD;
 
   Firebase.reconnectWiFi(true);
   fbdo.setResponseSize(4096);
 
-//  config.signer.tokens.legacy_token = SECRECT_KEY;
-  config.token_status_callback = tokenStatusCallback;
-  config.max_token_generation_retry = 10;
+  config.signer.tokens.legacy_token = SECRECT_KEY;
+//  config.token_status_callback = tokenStatusCallback;
+//  config.max_token_generation_retry = 10;
   Firebase.begin(&config, &auth);
 
-  Serial.println("Đang chờ lấy User ID...");
-  while ((auth.token.uid) == "") {
-    Serial.print('.');
-    delay(1000);
-  }
+//  Serial.println("Đang chờ lấy User ID...");
+//  while ((auth.token.uid) == "") {
+//    Serial.print('.');
+//    delay(1000);
+//  }
   // Print user UID
   Serial.print("User ID: ");
-  Serial.println(auth.token.uid.c_str());
+ // Serial.println(auth.token.uid.c_str());
   Serial.println("Kết nối tới Firebase thành công!");
 }
 /*========= END OF CONNECTION MEDTHODS =========*/
@@ -339,27 +339,33 @@ void sendGasData(void *para) {
     float value = MQ2.readSensor();
     gasPPM = value;
     setFloat(SENSOR_BASE_PATH + "gasPPM", value);
-    vTaskDelay(TASK_DELAY_TIME);
+    delay(1000);
   }
 }
 
 void sendTemperatureData(void *para) {
+  float tempValue;
   while (1) {
-    float tempValue = dht.readTemperature();
+    tempValue = dht.readTemperature();
+     Serial.print("temp");
+    Serial.println(tempValue);
     if (!isnan(tempValue)) {
       setFloat(SENSOR_BASE_PATH + "temperature", tempValue);
     }
-    vTaskDelay(TASK_DELAY_TIME);
+    delay(1000);
   }
 }
 
 void sendHumidityData(void *para) {
+  float humidValue ;
   while (1) {
-    float humidValue = dht.readHumidity();
+    humidValue = dht.readHumidity();
+         Serial.print("humid");
+    Serial.println(humidValue);
     if (!isnan(humidValue)) {
       setFloat(SENSOR_BASE_PATH + "humidity", humidValue);
     }
-    vTaskDelay(TASK_DELAY_TIME);
+    delay(1000);
   }
 }
 
@@ -372,7 +378,6 @@ void sendDustData(void *para) {
   float calcVoltage = 0;
   float dustDensity = 0;
   while (1) {
-    if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
       digitalWrite(DUST_3, LOW);
       delayMicroseconds(samplingTime);
       voMeasured = analogRead(DUST_5);
@@ -383,14 +388,9 @@ void sendDustData(void *para) {
 
       dustDensity = 172 * calcVoltage - 0.1;
       if (dustDensity < 0) dustDensity = 0;
- 
-      Serial.println("RAW DUST ANALOG: ");
-      Serial.println(voMeasured);
 
       setFloat(SENSOR_BASE_PATH + "dustDensity", dustDensity);  
-      vTaskDelay(TASK_DELAY_TIME);
-      xSemaphoreGive(semaphore);
-    }
+      delay(1000);
     
   
 
@@ -429,7 +429,7 @@ void gasAlertTask(void *para) {
     if (gasPPM > GASPPM_GREATER_THRESHOLD) {
       if (onFire == false && getGasAlertEnabled()) {
         digitalWrite(ANALOG_WHISTLE, LOW);
-        vTaskDelay(TASK_DELAY_TIME);
+        delay(500);
         digitalWrite(ANALOG_WHISTLE, HIGH);
       }
       setOnGas(true);
@@ -446,6 +446,8 @@ void setFloat(String path, float value) {
   String message = path + " - ";
   if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
     if (Firebase.setFloatAsync(fbdo, path, value)) {
+//      message.concat(value);
+//      Serial.println(message);
     } else {
       message.concat(" sent failed, REASON: ");
       Serial.println(message);
@@ -459,6 +461,8 @@ void setBool(String path, bool value) {
   String message = path + " - ";
   if (xSemaphoreTake(semaphore, (TickType_t)10) == pdTRUE) {
     if (Firebase.setBoolAsync(fbdo, path, value)) {
+//      message.concat(value);
+//      Serial.println(message);
     } else {
       message.concat(" sent failed, REASON: ");
       Serial.println(message);
@@ -524,7 +528,7 @@ void configTasks() {
   xTaskCreate(sendTemperatureData, "Sending Temperature Task", 6000, NULL, 1, NULL);
   xTaskCreate(sendHumidityData, "Sending Humidity Task", 6000, NULL, 1, NULL);
   xTaskCreate(sendGasData, "Sending Gas Task", 6000, NULL, 1, NULL);
-  xTaskCreate(sendDustData, "Sending Dust Task", 6000, NULL, configMAX_PRIORITIES - 1, NULL);
+  xTaskCreate(sendDustData, "Sending Dust Task", 6000, NULL, 1, NULL);
 }
 
 void configWatchDog() { esp_task_wdt_init(30, false); }
