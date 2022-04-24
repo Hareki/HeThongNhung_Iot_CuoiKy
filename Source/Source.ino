@@ -60,7 +60,6 @@ DHT dht(DIGITAL_DHT22, DHTTYPE);
 #define GASPPM_GREATER_THRESHOLD 1000
 #define FIRE_LOWER_THRESHOLD 3300
 #define SAMPLING_TIME 1000
-#define CHECKING_GAS_FIRE_TIME 400
 
 #define LED_FREQUENCY 5000
 #define LED_RESOLUTION 8
@@ -312,7 +311,7 @@ void onFireCheckingTask(void *para) {
       digitalWrite(ANALOG_WHISTLE, HIGH);
     }
     //   Serial.printf("Fire stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
-    delay(CHECKING_GAS_FIRE_TIME);
+    delay(250);
   }
 }
 
@@ -321,7 +320,7 @@ void onGasCheckingTask(void *para) {
     if (gasPPM > GASPPM_GREATER_THRESHOLD) {
       if (onFire == false && getGasAlertEnabled()) {
         digitalWrite(ANALOG_WHISTLE, LOW);
-        delay(500);
+        delay(650);
         digitalWrite(ANALOG_WHISTLE, HIGH);
       }
       setOnGas(true);
@@ -329,7 +328,7 @@ void onGasCheckingTask(void *para) {
       setOnGas(false);
     }
     //   Serial.printf("Gas stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
-    delay(CHECKING_GAS_FIRE_TIME);
+    delay(500);
   }
 }
 /*========= END OF SEND BOOL VALUES  =========*/
