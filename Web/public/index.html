@@ -16,7 +16,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.8.1/firebase-database.js"></script>
   <script>
-    // REPLACE WITH YOUR web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDExcDgLNEP2xf2hxtQS-nZLdFBtK-2ZzM",
       authDomain: "iot-project-7486d.firebaseapp.com",
@@ -26,14 +25,6 @@
       messagingSenderId: "135995069931",
       appId: "1:135995069931:web:725af818ec868afd35f5ae"
     };
-
-    // Initialize firebase
-    firebase.initializeApp(firebaseConfig);
-
-    // Make auth and database references
-    const auth = firebase.auth();
-    const db = firebase.database();
-
   </script>
 
   <!-- StyleSheets  -->
@@ -95,7 +86,7 @@
 
                   </div>
                 </div>
-                <div class="col-md-6" id ="login-image">
+                <div class="col-md-6" id="login-image">
                   <div class="center">
                     <img id="login-image" src="./assets/img/IoT.png" style="width: 350px; pointer-events: none;" alt="">
                   </div>
@@ -150,7 +141,8 @@
                         </div>
                       </a>
                       <div class="dropdown-menu dropdown-menu-md dropdown-menu-end">
-                        <div id = "inner-account-info" class="dropdown-inner user-card-wrap bg-lighter d-xl-none d-md-block">
+                        <div id="inner-account-info"
+                          class="dropdown-inner user-card-wrap bg-lighter d-xl-none d-md-block">
                           <div class="user-card">
                             <div class="user-avatar">
                               <em class="icon ni ni-user-alt"></em>
@@ -223,8 +215,7 @@
                                 <div>
                                   <div class="inline" style="margin-bottom: 0px">
                                     <span class="info function">Màu sắc</span>
-                                    <input type="text" style="background-color: '#%phRGB2%';" value=%phRGB2%
-                                      class="jscolor" id="hex-input" readonly />
+                                    <input type="text" class="jscolor" id="hex-input" readonly />
                                     <a class="btn btn-primary" style="min-width: 50px;" id="button-select-color">
                                       <div style="text-align: center; width: 100%;">OK</div>
                                     </a>
@@ -241,8 +232,7 @@
                       </div>
 
                       <!-- .col -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-1 order-lg-1"
-                        id="content-gasPPM">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-1 order-lg-1" id="content-gasPPM">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner">
@@ -320,8 +310,7 @@
                       </div>
 
                       <!-- .col -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-4 order-lg-4"
-                        id="content-humidity">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-4 order-lg-4" id="content-humidity">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner">
@@ -501,6 +490,9 @@
 
   <script>
     var vGasPPM, vDustDensity, vTemperature, vHumidity, vOnFire, vOnGas;
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
   </script>
   <script src="/assets/js/custom/live-chart.js"></script>
   <script src="/assets/js/custom/values-control.js"></script>
