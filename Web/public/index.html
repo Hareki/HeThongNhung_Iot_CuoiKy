@@ -56,45 +56,48 @@
             <div class="card h-100">
               <div class="row justify-content-center">
                 <div class="col-md-6">
-                  <div class="card-inner h-100" style="padding: 4rem 1rem 1rem 4rem;">
-                    <div class="card-head" style="display: block;">
-                      <h5 class="card-title">Đăng nhập</h5>
-                      <div class="nk-block-des">
-                        <p>Đồ án IoT dùng ESP32 môn Hệ thống nhúng - nhóm 6</p>
-                      </div>
-                    </div>
-                    <form id="login-form">
-                      <div class="form-group">
-                        <label class="form-label" for="input-email">Địa chỉ email</label>
-                        <div class="form-control-wrap">
-                          <div class="form-icon lg form-icon-left">
-                            <em class="icon ni ni-user"></em>
-                          </div>
-                          <input type="email" placeholder="example@gmail.com" class="form-control form-control-lg w-100"
-                            id="input-email" required>
+                  <div class="card-inner center2 h-100">
+                    <div>
+                      <div class="card-head" style="display: block;">
+                        <h5 class="card-title">Đăng nhập</h5>
+                        <div class="nk-block-des">
+                          <p>Đồ án IoT dùng ESP32 môn Hệ thống nhúng - nhóm 6</p>
                         </div>
                       </div>
-                      <div class="form-group">
-                        <label class="form-label" for="input-password">Mật khẩu</label>
-                        <div class="form-control-wrap">
-                          <div class="form-icon lg form-icon-left">
-                            <em class="icon ni ni-lock"></em>
+                      <form id="login-form">
+                        <div class="form-group">
+                          <label class="form-label" for="input-email">Địa chỉ email</label>
+                          <div class="form-control-wrap">
+                            <div class="form-icon lg form-icon-left">
+                              <em class="icon ni ni-user"></em>
+                            </div>
+                            <input type="email" placeholder="example@gmail.com"
+                              class="form-control form-control-lg w-100" id="input-email" required>
                           </div>
-                          <input type="password" placeholder="Nhập mật khẩu" class="form-control form-control-lg w-100"
-                            id="input-password" required>
                         </div>
-                      </div>
+                        <div class="form-group">
+                          <label class="form-label" for="input-password">Mật khẩu</label>
+                          <div class="form-control-wrap">
+                            <div class="form-icon lg form-icon-left">
+                              <em class="icon ni ni-lock"></em>
+                            </div>
+                            <input type="password" placeholder="Nhập mật khẩu"
+                              class="form-control form-control-lg w-100" id="input-password" required>
+                          </div>
+                        </div>
 
-                      <div class="form-group">
-                        <button type="submit" id="login-button" class="btn btn-lg btn-primary w-100 center">Tiếp
-                          tục</button>
-                      </div>
-                    </form>
+                        <div class="form-group">
+                          <button type="submit" id="login-button" class="btn btn-lg btn-primary w-100 center">Tiếp
+                            tục</button>
+                        </div>
+                      </form>
+                    </div>
+
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-6" id ="login-image">
                   <div class="center">
-                    <img src="./assets/img/IoT.png" style="width: 350px; pointer-events: none;" alt="">
+                    <img id="login-image" src="./assets/img/IoT.png" style="width: 350px; pointer-events: none;" alt="">
                   </div>
 
                 </div>
@@ -147,16 +150,17 @@
                         </div>
                       </a>
                       <div class="dropdown-menu dropdown-menu-md dropdown-menu-end">
-                        <!-- <div class="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
+                        <div id = "inner-account-info" class="dropdown-inner user-card-wrap bg-lighter d-xl-none d-md-block">
                           <div class="user-card">
                             <div class="user-avatar">
                               <em class="icon ni ni-user-alt"></em>
                             </div>
                             <div class="user-info">
+                              <div class="user-status user-status-verified">Xin chào người dùng</div>
                               <span class="lead-text user-email">example@gmail.com</span>
                             </div>
                           </div>
-                        </div> -->
+                        </div>
                         <div class="dropdown-inner">
                           <ul class="link-list">
                             <li><a class="dark-switch" href="#"><em class="icon ni ni-moon"></em><span>Chế độ
@@ -184,7 +188,7 @@
                     <div class="row g-gs">
 
                       <!-- .light -->
-                      <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-sm-2 order-lg-3">
+                      <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-2 order-lg-3">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner" id="content-led">
@@ -237,7 +241,7 @@
                       </div>
 
                       <!-- .col -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-1 order-lg-1"
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-1 order-lg-1"
                         id="content-gasPPM">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
@@ -258,7 +262,8 @@
                               <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id="value-gasPPM"></span> <span class="unit"> PPM</span></div>
+                                    <div class="amount"><span id="value-gasPPM"></span> <span class="unit"> PPM</span>
+                                    </div>
                                     <div class="nk-ecwg6-ck">
                                       <canvas class="live-chart" id="gasPPM_60sec"></canvas>
                                     </div>
@@ -280,7 +285,8 @@
                       <!-- .col -->
 
                       <!-- .light -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-3 order-lg-2" id="content-temperature">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-3 order-lg-2"
+                        id="content-temperature">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner">
@@ -293,7 +299,8 @@
                               <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id="value-temperature"> </span><span class="unit"> °C</span></div>
+                                    <div class="amount"><span id="value-temperature"> </span><span class="unit">
+                                        °C</span></div>
                                     <div class="nk-ecwg6-ck">
                                       <canvas class="live-chart" id="temperature_60sec"></canvas>
                                     </div>
@@ -313,7 +320,8 @@
                       </div>
 
                       <!-- .col -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-4 order-lg-4" id="content-humidity">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-4 order-lg-4"
+                        id="content-humidity">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner">
@@ -326,7 +334,8 @@
                               <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id="value-humidity"> </span> <span class="unit"> %</span></div>
+                                    <div class="amount"><span id="value-humidity"> </span> <span class="unit"> %</span>
+                                    </div>
                                     <div class="nk-ecwg6-ck">
                                       <canvas class="live-chart" id="humidity_60sec"></canvas>
                                     </div>
@@ -349,7 +358,7 @@
 
 
                       <!-- fire -->
-                      <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-sm-0 order-lg-0" id="content-fire">
+                      <div class="col-sm-12 col-md-6 col-lg-3 card-min-height order-0 order-lg-0" id="content-fire">
                         <div class="card" id="card-fire">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner">
@@ -368,10 +377,11 @@
                               </div>
                               <div class="data hidden" id="on-fire-false">
                                 <div class="main-content">
-                                  <div style="min-height: 80px; display:flex; align-items:center; justify-content:center">
-                                      <div class="sleep-img">&nbsp;</div>
+                                  <div
+                                    style="min-height: 80px; display:flex; align-items:center; justify-content:center">
+                                    <div class="sleep-img">&nbsp;</div>
                                   </div>
-                                  
+
                                   <div class="info">
                                     <div class="fire-safe info2">
                                       Không phát hiện có lửa
@@ -384,10 +394,11 @@
 
                               <div class="data" id="on-fire-true">
                                 <div class="main-content">
-                                  <div style="min-height: 80px; display:flex; align-items:center; justify-content:center">
-                                      <div class="fire-detected-img" id="fire-img">&nbsp;</div>
+                                  <div
+                                    style="min-height: 80px; display:flex; align-items:center; justify-content:center">
+                                    <div class="fire-detected-img" id="fire-img">&nbsp;</div>
                                   </div>
-                                  
+
                                   <div class="info">
                                     <div class="alerting-color info2">
                                       Phát hiện có lửa
@@ -409,7 +420,8 @@
 
 
                       <!-- .col -->
-                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-sm-5 order-lg-5" id="content-dust-density">
+                      <div class="col-sm-12 col-md-6 col-lg-5 card-min-height order-5 order-lg-5"
+                        id="content-dust-density">
                         <div class="card">
                           <div class="nk-ecwg nk-ecwg6">
                             <div class="card-inner">
@@ -422,7 +434,8 @@
                               <div class="data">
                                 <div class="main-content">
                                   <div class="data-group">
-                                    <div class="amount"><span id="value-dust-density"> </span><span class="unit"> µg/m³</span></div>
+                                    <div class="amount"><span id="value-dust-density"> </span><span class="unit">
+                                        µg/m³</span></div>
                                     <div class="nk-ecwg6-ck">
                                       <canvas class="live-chart" id="dustDensity_60sec"></canvas>
                                     </div>

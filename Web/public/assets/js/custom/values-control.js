@@ -119,7 +119,7 @@ function addSettingChangedEventListener() {
 
   ledRGBRef.on('value', (snap) => {
     var value = snap.val();
-    hexInput.value = value
+    hexInput.value = value.toUpperCase();
     hexInput.style.backgroundColor = '#' + value.toString();
   });
 
@@ -180,7 +180,7 @@ function getDustDensityInfo(value) {
   }
   else if (value <= 250.4) {
     obj.message = 'Chất lượng không khí xấu';
-    obj.color = '#e85347';
+    obj.color = '#FF1F00';
   }
   else if (value <= 350.4) {
     obj.message = 'Chất lượng không khí rất xấu';
@@ -214,7 +214,7 @@ function getHumidityInfo(value) {
   var obj = {};
   if (value <= 40) {
     obj.message = 'Độ ẩm thấp';
-    obj.color = '#e85347';
+    obj.color = '#FF1F00';
   } else if (value <= 65) {
     obj.message = 'Độ ẩm lý tưởng';
     obj.color = '#3ae83a';
@@ -234,82 +234,87 @@ function getGasInfo(value) {
     obj.color = '#fc7f03';
   } else {
     obj.message = 'Nồng độ ga cao bất thường';
-    obj.color = '#e85347';
+    obj.color = '#FF1F00';
   }
   return obj;
 }
 
 function onFireEventHandler(snap) {
   vOnFire = snap.val();
-  var nodes = fireContent.querySelectorAll(".title, .card");
+  fireSwitchEventHandler();
   if (vOnFire) {
     setHidden(document.getElementById("on-fire-true"), false);
     setHidden(document.getElementById("on-fire-false"), true);
-
-    fireSwitchEventHandler();
-
+    if (fireSwitch.checked) {
+      setFireAlertUI(true);
+    }
+    return;
   } else {
     setHidden(document.getElementById("on-fire-false"), false);
     setHidden(document.getElementById("on-fire-true"), true);
-
-    Array.prototype.forEach.call(nodes, function (element) {
-      element.classList.remove("alerting-color");
-    });
+    setFireAlertUI(false);
   }
 }
 
 function onGasEventHandler(snap) {
   vOnGas = snap.val();
-  var nodes = document.getElementById("content-gasPPM").querySelectorAll(".title, .card, .amount");
-  if (vOnGas) {
-    Array.prototype.forEach.call(nodes, function (element) {
-      element.classList.add("alerting-color");
-    });
-  } else {
-    Array.prototype.forEach.call(nodes, function (element) {
-      element.classList.remove("alerting-color");
-    });
+  if (vOnGas && gasSwitch.checked) {
+    setGasAlertUI(true);
+  }
+  else {
+    setGasAlertUI(false);
   }
 }
 
-function sliderBEventHandler() {
-
-}
 function fireSwitchEventHandler(evt) {
   var alert = fireSwitch.checked;
   fireAlertRef.set(alert);
   if (vOnFire) {
-    var nodes = fireContent.querySelectorAll('.card, .title');
     if (alert) {
-      fireIMG.classList.replace('fire-detected-img-red', 'fire-detected-img');
-
-      Array.prototype.forEach.call(nodes, element => {
-        element.classList.add('alerting-color');
-      });
+      setFireAlertUI(true);
     } else {
-      fireIMG.classList.replace('fire-detected-img', 'fire-detected-img-red');
-
-      Array.prototype.forEach.call(nodes, element => {
-        element.classList.remove('alerting-color');
-      });
-
+      setFireAlertUI(false);
     }
   }
 }
+
 function gasSwitchEventHandler() {
   var alert = gasSwitch.checked;
   gasAlertRef.set(alert);
   if (vOnGas) {
-    var nodes = gasPPMContent.querySelectorAll('.card, .title, .amount');
     if (alert) {
-      Array.prototype.forEach.call(nodes, element => {
-        element.classList.add('alerting-color');
-      });
+      setGasAlertUI(true);
     } else {
-      Array.prototype.forEach.call(nodes, element => {
-        element.classList.remove('alerting-color');
-      });
+      setGasAlertUI(false);
     }
+  }
+}
+
+function setGasAlertUI(alert) {
+  var nodes = gasPPMContent.querySelectorAll('.card, .title, .amount');
+  if (alert) {
+    Array.prototype.forEach.call(nodes, element => {
+      element.classList.add('alerting-color');
+    });
+  } else {
+    Array.prototype.forEach.call(nodes, element => {
+      element.classList.remove('alerting-color');
+    });
+  }
+}
+
+function setFireAlertUI(alert) {
+  var nodes = fireContent.querySelectorAll('.card, .title');
+  if (alert) {
+    fireIMG.classList.replace('fire-detected-img-red', 'fire-detected-img');
+    Array.prototype.forEach.call(nodes, element => {
+      element.classList.add('alerting-color');
+    });
+  } else {
+    fireIMG.classList.replace('fire-detected-img', 'fire-detected-img-red');
+    Array.prototype.forEach.call(nodes, element => {
+      element.classList.remove('alerting-color');
+    });
   }
 }
 
@@ -332,7 +337,7 @@ function addAllEeventListeners() {
     ledIsBlinkingRef.set(blinkingSwitch.checked);
   });
   buttonSelectColor.addEventListener('click', () => {
-    ledRGBRef.set(hexInput.value);
+    ledRGBRef.set(hexInput.value.toUpperCase());
   });
 }
 

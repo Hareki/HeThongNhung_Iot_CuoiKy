@@ -1,10 +1,10 @@
 #include <DHT.h>
 #include <FirebaseESP32.h>
+#include <GP2YDustSensor.h>
 #include <MQUnifiedsensor.h>
 #include <WiFi.h>
 #include <addons/TokenHelper.h>
 #include <esp_task_wdt.h>
-#include <GP2YDustSensor.h>
 
 /*========= DEFINE PORTS =========*/
 #define ANALOG_GAS 32
@@ -29,8 +29,7 @@
 /*========= END OF DEFINE PORTS =========*/
 
 /*========= DEFINE CONNECTION INFORMATION =========*/
-#define DATABASE_URL \
-  "iot-project-7486d-default-rtdb.asia-southeast1.firebasedatabase.app"
+#define DATABASE_URL "iot-project-7486d-default-rtdb.asia-southeast1.firebasedatabase.app"
 #define SECRECT_KEY "t9gujxIcFO6k3k6V2LX71UO89UMReJ8rVghlMuW5"
 #define API_KEY "AIzaSyDExcDgLNEP2xf2hxtQS-nZLdFBtK-2ZzM"
 
@@ -48,7 +47,7 @@
 #define Voltage_Resolution (5)
 #define ADC_Bit_Resolution (12)
 #define RatioMQ2CleanAir (9.83)  // RS / R0 = 9.83 ppm
-MQUnifiedsensor MQ2(Board, Voltage_Resolution, ADC_Bit_Resolution, ANALOG_GAS, Type);
+MQUnifiedsensor gasSensor(Board, Voltage_Resolution, ADC_Bit_Resolution, ANALOG_GAS, Type);
 
 GP2YDustSensor dustSensor(GP2YDustSensorType::GP2Y1010AU0F, DUST_3, DUST_5);
 
@@ -61,12 +60,12 @@ DHT dht(DIGITAL_DHT22, DHTTYPE);
 #define GASPPM_GREATER_THRESHOLD 1000
 #define FIRE_LOWER_THRESHOLD 3300
 #define SAMPLING_TIME 1000
-#define CHECKING_GAS_FIRE_TIME 250
+#define CHECKING_GAS_FIRE_TIME 400
 
 #define LED_FREQUENCY 5000
 #define LED_RESOLUTION 8
 
-float gasPPM = 0;  // biến giao tiếp giữa onGasCheckingTask() và sendGasData()
+float gasPPM = 0;     // biến giao tiếp giữa onGasCheckingTask() và sendGasData()
 bool onFire = false;  // biến giao tiếp giữa onGasCheckingTask() và onFireCheckingTask()
 
 /*========= END OF DEFINE COMMON VARIABLES =========*/
@@ -109,25 +108,13 @@ int ledGreenValue = 255;
 int ledBlueValue = 255;
 
 FirebaseData stream;
-bool dataIsNode(String node) {
-  return strstr(stream.dataPath().c_str(), node.c_str());
-}
+bool dataIsNode(String node) { return strstr(stream.dataPath().c_str(), node.c_str()); }
 
-bool dataIsInt() {
-  return stream.dataTypeEnum() == fb_esp_rtdb_data_type_integer;
-}
-bool dataIsBool() {
-  return stream.dataTypeEnum() == fb_esp_rtdb_data_type_boolean;
-}
-bool dataIsString() {
-  return stream.dataTypeEnum() == fb_esp_rtdb_data_type_string;
-}
-bool dataIsNull() {
-  return stream.dataTypeEnum() == fb_esp_rtdb_data_type_null;
-}
-bool dataIsJson() {
-  return stream.dataTypeEnum() == fb_esp_rtdb_data_type_json;
-}
+bool dataIsInt() { return stream.dataTypeEnum() == fb_esp_rtdb_data_type_integer; }
+bool dataIsBool() { return stream.dataTypeEnum() == fb_esp_rtdb_data_type_boolean; }
+bool dataIsString() { return stream.dataTypeEnum() == fb_esp_rtdb_data_type_string; }
+bool dataIsNull() { return stream.dataTypeEnum() == fb_esp_rtdb_data_type_null; }
+bool dataIsJson() { return stream.dataTypeEnum() == fb_esp_rtdb_data_type_json; }
 
 void loadSettings() {
   Serial.println("Đang lấy giá trị độ sáng led");
@@ -183,15 +170,16 @@ void settingChangedCallBack(StreamData data) { Serial.println("was here"); }
 
 /*========= LED CONTROL MEDTHODS =========*/
 void setBrightness(int brightness) {
-  double percent = (double)brightness / (double)100;
-  int realLedRedValue = round((double)ledRedValue * percent);
-  int realLedGreenValue = round((double)ledGreenValue * percent);
-  int realLedBlueValue = round((double)ledBlueValue * percent);
-  
-  ledcWrite(LED_RED_PWM, realLedRedValue);
-  ledcWrite(LED_GREEN_PWM, realLedGreenValue);
-  ledcWrite(LED_BLUE_PWM, realLedBlueValue);
+  if (ledIsOn || brightness == 0) {
+    double percent = (double)brightness / (double)100;
+    int realLedRedValue = round((double)ledRedValue * percent);
+    int realLedGreenValue = round((double)ledGreenValue * percent);
+    int realLedBlueValue = round((double)ledBlueValue * percent);
 
+    ledcWrite(LED_RED_PWM, realLedRedValue);
+    ledcWrite(LED_GREEN_PWM, realLedGreenValue);
+    ledcWrite(LED_BLUE_PWM, realLedBlueValue);
+  }
 }
 
 void setPower(bool isOn) {
@@ -207,8 +195,8 @@ bool ledState = true;
 bool blinkingEnable = false;
 void blinkingTask(void *para) {
   while (1) {
-    Serial.printf("Enable: %d", blinkingEnable);
-    Serial.printf("Power: %d", ledIsOn);
+//    Serial.printf("Enable: %d", blinkingEnable);
+//    Serial.printf("Power: %d", ledIsOn);
     if (blinkingEnable && ledIsOn) {
       if (ledState) {
         ledState = false;
@@ -216,18 +204,16 @@ void blinkingTask(void *para) {
       } else {
         ledState = true;
         setBrightness(ledBrightness);
-      }      
+      }
     }
     delay(500);
-//    Serial.printf("Blinking stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
+    //    Serial.printf("Blinking stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
   }
 }
 
-void setBlinking(bool isBlinking) { 
-  blinkingEnable = isBlinking; 
-  if(ledIsOn){
-    setBrightness(ledBrightness); // trường hợp tắt blinking khi led đang ở trạng thái tắt thì phải mở lại
-  }
+void setBlinking(bool isBlinking) {
+  blinkingEnable = isBlinking;
+  setBrightness(ledBrightness);
 }
 /*--blinking--*/
 
@@ -272,8 +258,8 @@ void connectToFirebase() {
 /*========= SEND FLOAT VALUES =========*/
 
 void sendGasData() {
-  MQ2.update();
-  float value = MQ2.readSensor();
+  gasSensor.update();
+  float value = gasSensor.readSensor();
   gasPPM = value;
   setFloat(SENSOR_BASE_PATH + "gasPPM", value);
 }
@@ -297,25 +283,9 @@ void sendHumidityData() {
     Serial.println("HUMID FAILED");
   }
 }
-const int samplingTime = 280;
-const int deltaTime = 40;
-const int sleepTime = 9680;
-
-float voMeasured = 0;
-float calcVoltage = 0;
-float dustDensity = 0;
 
 void sendDustData() {
-  digitalWrite(DUST_3, LOW);
-  delayMicroseconds(samplingTime);
-  voMeasured = analogRead(DUST_5);
-  delayMicroseconds(deltaTime);
-  digitalWrite(DUST_3, HIGH);
-  delayMicroseconds(sleepTime);
-  calcVoltage = voMeasured * (5.0 / 4095);
-
-  dustDensity = 172 * calcVoltage - 0.1;
-  if (dustDensity < 0) dustDensity = 0;
+  float dustDensity = dustSensor.getDustDensity();
   setFloat(SENSOR_BASE_PATH + "dustDensity", dustDensity);
 }
 /*========= END OF SEND FLOAT VALUES  =========*/
@@ -341,7 +311,7 @@ void onFireCheckingTask(void *para) {
       setOnFire(false);
       digitalWrite(ANALOG_WHISTLE, HIGH);
     }
- //   Serial.printf("Fire stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
+    //   Serial.printf("Fire stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
     delay(CHECKING_GAS_FIRE_TIME);
   }
 }
@@ -358,7 +328,7 @@ void onGasCheckingTask(void *para) {
     } else {
       setOnGas(false);
     }
- //   Serial.printf("Gas stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
+    //   Serial.printf("Gas stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
     delay(CHECKING_GAS_FIRE_TIME);
   }
 }
@@ -369,8 +339,8 @@ void setFloat(String path, float value) {
   String message = path + " - ";
   if (xSemaphoreTake(semaphore, (TickType_t)10 / portTICK_PERIOD_MS) == pdTRUE) {
     if (Firebase.setFloatAsync(fbdo, path, value)) {
-      message.concat(value);
-      Serial.println(message);
+//      message.concat(value);
+//      Serial.println(message);
     } else {
       message.concat(" sent failed, REASON: ");
       Serial.println(message);
@@ -427,9 +397,9 @@ void configDustSensor() {
 }
 
 void configGasSensor() {
-  MQ2.setRegressionMethod(1);  //_PPM =  a*ratio^b
-  MQ2.setA(574.25);
-  MQ2.setB(-2.222);
+  gasSensor.setRegressionMethod(1);  //_PPM =  a*ratio^b
+  gasSensor.setA(574.25);
+  gasSensor.setB(-2.222);
 
   /* Exponential regression:
     Gas    | a      | b
@@ -439,11 +409,11 @@ void configGasSensor() {
     Alcohol| 3616.1 | -2.675
     Propane| 658.71 | -2.168 */
 
-  MQ2.init();
-  MQ2.setR0(R0);
+  gasSensor.init();
+  gasSensor.setR0(R0);
 }
 
-void configDHT22Sensor() { dht.begin(); }
+void configTehuSensor() { dht.begin(); }
 
 void configTasks() {
   xTaskCreatePinnedToCore(onFireCheckingTask, "FireTask", 10000, NULL, 0, NULL, 0);
@@ -463,20 +433,18 @@ void setup() {
 
   configIO();
   configGasSensor();
-  configDHT22Sensor();
+  configDustSensor();
+  configTehuSensor();
   configLed();
-  
-  loadSettings();//Load setting và config đèn, biến theo setting đó
-  configTasks();//Phải để sau loadSettings, vì configTask xong là nó chạy ngay
+
+  loadSettings();  // Load setting và config đèn, biến theo setting đó
+  configTasks();   // Phải để sau loadSettings, vì configTask xong là nó chạy ngay
   Serial.println("Đang set stream...");
   if (!Firebase.beginStream(stream, SETTING_BASE_PATH)) {
-    Serial.printf("ERROR - Xảy ra lỗi khi set stream: , %s\n\n",
-                  stream.errorReason().c_str());
+    Serial.printf("ERROR - Xảy ra lỗi khi set stream: , %s\n\n", stream.errorReason().c_str());
     Serial.println("Tiến hành ngắt chương trình...");
     enable = false;
   }
-
-
 }
 
 unsigned long interval1 = 0;
@@ -486,7 +454,7 @@ void loop() {
   if (enable) {
     if ((unsigned long)(millis() - interval1) > 1000 || interval1 == 0) {
       interval1 = millis();
-      Serial.println("==================");
+//      Serial.println("==================");
       sendDustData();
       sendTemperatureData();
       sendHumidityData();
@@ -506,33 +474,36 @@ void loop() {
     }
 
     if (!Firebase.readStream(stream))
-      Serial.printf("ERROR - Không thể đọc dữ liệu từ stream, %s\n\n",
-                    stream.errorReason().c_str());
+      Serial.printf("ERROR - Không thể đọc dữ liệu từ stream, %s\n\n", stream.errorReason().c_str());
 
-    if (stream.streamAvailable()) { 
+    if (stream.streamAvailable()) {
       if (!dataIsJson()) {
-         Serial.println("VALUE CHANGED");
         if (dataIsBool()) {
           if (dataIsNode("isBlinking")) {
             ledIsBlinking = stream.to<bool>();
+            Serial.printf("VALUE CHANGED - BLINKING: %d\n", ledIsBlinking);
             setBlinking(ledIsBlinking);
           } else if (dataIsNode("isOn")) {
             ledIsOn = stream.to<bool>();
+            Serial.printf("VALUE CHANGED - ON: %d\n", ledIsOn);
             setPower(ledIsOn);
           } else if (dataIsNode("gas")) {
             gasAlert = stream.to<bool>();
+            Serial.printf("ALERT GAS - ON: %d\n", gasAlert);
           } else if (dataIsNode("fire")) {
             fireAlert = stream.to<bool>();
+            Serial.printf("ALERT FIRE - ON: %d\n", fireAlert);
           }
         } else if (dataIsString() && dataIsNode("RGB")) {
           ledRGBHex = stream.to<String>();
+          Serial.printf("HEX RGB: %s", ledRGBHex);
           setRGB(ledRGBHex);
         } else if (dataIsInt() && dataIsNode("brightness")) {
           ledBrightness = stream.to<int>();
+          Serial.printf("LED BRIGHTNESS: %d\n", ledRGBHex);
           setBrightness(ledBrightness);
         } else {
-          Serial.println(
-              "ERROR - Định dạng dữ liệu thay đổi sai, không thể cập nhật");
+          Serial.println("ERROR - Định dạng dữ liệu thay đổi sai, không thể cập nhật");
         }
       }
     }

@@ -130,7 +130,7 @@ input[type="text"]:focus {
 }
 
 .alerting-color {
-  background-color: #e85347 !important;
+  background-color: #FF1F00 !important;
   color: #fff !important;
 }
 
@@ -190,7 +190,7 @@ input[type="text"]:focus {
 }
 
 .unit {
-  font-size: 1.25rem !important;
+  font-size: 1rem !important;
 }
 
 #hex-input{
@@ -200,3 +200,10 @@ input[type="text"]:focus {
 #button-select-color{
   padding-block: 0.1rem;
 }
+
+@media only screen and (max-width: 768px) {
+  #login-image {
+      display: none;
+  }
+}
+
