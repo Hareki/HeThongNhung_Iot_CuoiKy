@@ -44,7 +44,7 @@
 #define R0 (0.58)
 #define Board ("ESP-32")
 #define Type ("MQ-2")
-#define Voltage_Resolution (5)
+#define Voltage_Resolution (5) //Cấp nguồn 5 volt, chạy ổn định ở 5 volt
 #define ADC_Bit_Resolution (12)
 #define RatioMQ2CleanAir (9.83)  // RS / R0 = 9.83 ppm
 MQUnifiedsensor gasSensor(Board, Voltage_Resolution, ADC_Bit_Resolution, ANALOG_GAS, Type);
@@ -169,7 +169,7 @@ void settingChangedCallBack(StreamData data) { Serial.println("was here"); }
 
 /*========= LED CONTROL MEDTHODS =========*/
 void setBrightness(int brightness) {
-  if (ledIsOn || brightness == 0) {
+  if (ledIsOn || brightness == 0) { //led tắt => set brightness = 0
     double percent = (double)brightness / (double)100;
     int realLedRedValue = round((double)ledRedValue * percent);
     int realLedGreenValue = round((double)ledGreenValue * percent);
@@ -190,7 +190,7 @@ void setPower(bool isOn) {
 }
 
 /*--blinking--*/
-bool ledState = true;
+bool ledState = true; //=> Biến điều khiển nhấp nháy
 bool blinkingEnable = false;
 void blinkingTask(void *para) {
   while (1) {
@@ -337,7 +337,7 @@ void onGasCheckingTask(void *para) {
 void setFloat(String path, float value) {
   String message = path + " - ";
   if (xSemaphoreTake(semaphore, (TickType_t)10 / portTICK_PERIOD_MS) == pdTRUE) {
-    if (Firebase.setFloatAsync(fbdo, path, value)) {
+    if (Firebase.setFloatAsync(fbdo, path, value)) { //Async = realtime
 //      message.concat(value);
 //      Serial.println(message);
     } else {
@@ -450,7 +450,7 @@ unsigned long interval1 = 0;
 unsigned long interval2 = 0;
 unsigned long interval3 = 0;
 void loop() {
-  if (enable) {
+  if (enable) { //Dùng loop vì temp humid, dust fail quá nhiều!, liên quan về tính chính xác về time của sensor
     if ((unsigned long)(millis() - interval1) > 1000 || interval1 == 0) {
       interval1 = millis();
 //      Serial.println("==================");
@@ -460,12 +460,10 @@ void loop() {
       sendGasData();
     }
 
-    if ((unsigned long)(millis() - interval2) > 2000 || interval2 == 0) {
+    if ((unsigned long)(millis() - interval2) > 2000 || interval2 == 0) { // Cảm biến chậm, lấy mẫu nhanh hơn đọc ra kq như cũ => tốn tài nguyên set lên db kq cũ
       interval2 = millis();
-      sendDustData();
       sendTemperatureData();
       sendHumidityData();
-      sendGasData();
     }
     if ((unsigned long)(millis() - interval3) > 25000 || interval3 == 0) {
       interval3 = millis();
@@ -477,7 +475,7 @@ void loop() {
 
     if (stream.streamAvailable()) {
       if (!dataIsJson()) {
-        if (dataIsBool()) {
+        if (dataIsBool()) {//Kiểm tra cho chắc, tránh việc ép kiểu sai, crash chương trình
           if (dataIsNode("isBlinking")) {
             ledIsBlinking = stream.to<bool>();
             Serial.printf("VALUE CHANGED - BLINKING: %d\n", ledIsBlinking);
