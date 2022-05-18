@@ -488,15 +488,16 @@
   <script src="/assets/js/original/bundle.js?ver=3.0.0"></script>
   <script src="/assets/js/original/scripts.js?ver=3.0.0"></script>
 
-  <script>
-    var vGasPPM, vDustDensity, vTemperature, vHumidity, vOnFire, vOnGas;
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-  </script>
-  <script src="/assets/js/custom/live-chart.js"></script>
-  <script src="/assets/js/custom/values-control.js"></script>
+  <!-- variables -->
+  <script src="/assets/js/custom/firebase-reference.js"></script>
+  <script src="/assets/js/custom/element-mapping.js"></script>
+  <script src="/assets/js/custom/live-values.js"></script>
+
+  <!-- methods -->
   <script src="/assets/js/custom/auth.js"></script>
+  <script src="/assets/js/custom/event-handlers.js"></script>
+  <script src="/assets/js/custom/live-chart-controls.js"></script>
+  <script src="/assets/js/custom/live-value-controls.js"></script>
 </body>
 
 </html>

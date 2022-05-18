@@ -1,0 +1,1 @@
+var vGasPPM, vDustDensity, vTemperature, vHumidity, vOnFire, vOnGas;

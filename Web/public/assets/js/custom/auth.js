@@ -1,3 +1,4 @@
+
 // listen for auth status changes
 auth.onAuthStateChanged((user) => {
   if (user) {
@@ -9,6 +10,37 @@ auth.onAuthStateChanged((user) => {
     changeSection();
   }
 });
+
+function changeSection(user) {
+  if (user) {
+    setHidden(loginSection, true);
+    setHidden(starterSection, true);
+    setHidden(mainSection, false);
+    setEmailToUI(user.email);
+
+    loadSettings();
+    addAllEventHandler();
+  } else {
+    setHidden(loginSection, false);
+    setHidden(starterSection, true);
+    setHidden(mainSection, true);
+    setEmailToUI('');
+  }
+};
+
+function setEmailToUI(email) {
+  Array.prototype.forEach.call(userEmailElements, function (element) {
+    element.innerText = email;
+  });
+}
+
+function setHidden(element, hidden) {
+  if (hidden) {
+    element.classList.add("hidden");
+  } else {
+    element.classList.remove("hidden");
+  }
+}
 
 // login
 const loginForm = document.getElementById("login-form");
@@ -34,6 +66,30 @@ loginForm.addEventListener("submit", (e) => {
       console.log(errorMessage);
     });
 });
+
+function loadSettings() {
+  fireAlertRef.once('value')
+    .then(function (snap) {
+      var fireAlert = snap.val();
+      if (fireAlert) {
+        fireSwitch.checked = true;
+
+      } else {
+        fireSwitch.checked = false;
+      }
+      fireSwitchedEventHandler();
+    });
+  gasAlertRef.once('value')
+    .then(function (snap) {
+      var gasAlert = snap.val();
+      if (gasAlert) {
+        gasSwitch.checked = true;
+      } else {
+        gasSwitch.checked = false;
+      }
+      gasSwitchedEventHandler();
+    });
+}
 
 // logout
 document.getElementById("logout-button").addEventListener("click", (e) => {
