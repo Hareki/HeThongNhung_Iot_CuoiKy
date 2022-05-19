@@ -105,6 +105,33 @@ function getGasInfo(value) {
   return obj;
 }
 
+function setGasAlertUI(alert) {
+  var nodes = gasPPMContent.querySelectorAll('.card, .title, .amount');
+  if (alert) {
+    Array.prototype.forEach.call(nodes, element => {
+      element.classList.add('alerting-color');
+    });
+  } else {
+    Array.prototype.forEach.call(nodes, element => {
+      element.classList.remove('alerting-color');
+    });
+  }
+}
+
+function setFireAlertUI(alert) {
+  var nodes = fireContent.querySelectorAll('.card, .title');
+  if (alert) {
+    fireIMG.classList.replace('fire-detected-img-red', 'fire-detected-img');
+    Array.prototype.forEach.call(nodes, element => {
+      element.classList.add('alerting-color');
+    });
+  } else {
+    fireIMG.classList.replace('fire-detected-img', 'fire-detected-img-red');
+    Array.prototype.forEach.call(nodes, element => {
+      element.classList.remove('alerting-color');
+    });
+  }
+}
 
 
 
