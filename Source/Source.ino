@@ -44,7 +44,7 @@
 #define R0 (0.58)
 #define Board ("ESP-32")
 #define Type ("MQ-2")
-#define Voltage_Resolution (5) //Cấp nguồn 5 volt, chạy ổn định ở 5 volt
+#define Voltage_Resolution (3.3)
 #define ADC_Bit_Resolution (12)
 #define RatioMQ2CleanAir (9.83)  // RS / R0 = 9.83 ppm
 MQUnifiedsensor gasSensor(Board, Voltage_Resolution, ADC_Bit_Resolution, ANALOG_GAS, Type);
@@ -57,7 +57,7 @@ DHT dht(DIGITAL_DHT22, DHTTYPE);
 /*========= END OF DEFINE SENSORS =========*/
 
 /*========= DEFINE COMMON VARIABLES =========*/
-#define GASPPM_GREATER_THRESHOLD 1000
+#define GASPPM_GREATER_THRESHOLD 800
 #define FIRE_LOWER_THRESHOLD 3300
 #define SAMPLING_TIME 1000
 
@@ -163,7 +163,6 @@ void loadSettings() {
   Serial.println(fireAlert);
 }
 
-void settingChangedCallBack(StreamData data) { Serial.println("was here"); }
 
 /*=========END OF SETTINGS UPDATER REGION=========*/
 
@@ -320,7 +319,7 @@ void onGasCheckingTask(void *para) {
     if (gasPPM > GASPPM_GREATER_THRESHOLD) {
       if (onFire == false && getGasAlertEnabled()) {
         digitalWrite(ANALOG_WHISTLE, LOW);
-        delay(650);
+        delay(800);
         digitalWrite(ANALOG_WHISTLE, HIGH);
       }
       setOnGas(true);
@@ -328,7 +327,7 @@ void onGasCheckingTask(void *para) {
       setOnGas(false);
     }
     //   Serial.printf("Gas stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
-    delay(500);
+    delay(800);
   }
 }
 /*========= END OF SEND BOOL VALUES  =========*/
@@ -391,8 +390,8 @@ void configLed() {
 }
 
 void configDustSensor() {
-  dustSensor.setSensitivity(0.45);
-  dustSensor.setBaseline(0.335);
+  dustSensor.setSensitivity(0.5);
+  dustSensor.setBaseline(0.2);
 }
 
 void configGasSensor() {
