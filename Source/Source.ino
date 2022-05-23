@@ -192,6 +192,7 @@ void setPower(bool isOn) {
 bool ledState = true; //=> Biến điều khiển nhấp nháy
 bool blinkingEnable = false;
 void blinkingTask(void *para) {
+  const TickType_t delayTime = 500 / portTICK_PERIOD_MS;
   while (1) {
 //    Serial.printf("Enable: %d", blinkingEnable);
 //    Serial.printf("Power: %d", ledIsOn);
@@ -204,7 +205,7 @@ void blinkingTask(void *para) {
         setBrightness(ledBrightness);
       }
     }
-    delay(500);
+    vTaskDelay( delayTime );
     //    Serial.printf("Blinking stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
   }
 }
@@ -294,6 +295,7 @@ void setOnGas(bool alert) { setBool(ON_BASE_PATH + "onGas", alert); }
 
 void onFireCheckingTask(void *para) {
   int value;
+  const TickType_t delayTime = 250 / portTICK_PERIOD_MS;
   while (1) {
     value = analogRead(ANALOG_FIRE);
     if (value < FIRE_LOWER_THRESHOLD) {
@@ -310,24 +312,27 @@ void onFireCheckingTask(void *para) {
       digitalWrite(ANALOG_WHISTLE, HIGH);
     }
     //   Serial.printf("Fire stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
-    delay(250);
+    vTaskDelay(delayTime);
   }
 }
 
 void onGasCheckingTask(void *para) {
+  TickType_t lastWakeTime;
+  lastWakeTime = xTaskGetTickCount ();
+  
+  const TickType_t delayTime = 500;
   while (1) {
-    if (gasPPM > GASPPM_GREATER_THRESHOLD) {
+      if (gasPPM > GASPPM_GREATER_THRESHOLD) {
       if (onFire == false && getGasAlertEnabled()) {
         digitalWrite(ANALOG_WHISTLE, LOW);
-        delay(800);
+        xTaskDelayUntil( &lastWakeTime, delayTime );
         digitalWrite(ANALOG_WHISTLE, HIGH);
       }
       setOnGas(true);
     } else {
       setOnGas(false);
     }
-    //   Serial.printf("Gas stack size: %d\n\n", uxTaskGetStackHighWaterMark(NULL));
-    delay(800);
+    xTaskDelayUntil( &lastWakeTime, delayTime );
   }
 }
 /*========= END OF SEND BOOL VALUES  =========*/

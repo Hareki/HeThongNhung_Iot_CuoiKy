@@ -59,11 +59,8 @@ loginForm.addEventListener("submit", (e) => {
       console.log(email);
     })
     .catch((error) => {
-      const errorCode = error.code;
       const errorMessage = error.message;
-      toastr.clear();
       NioApp.Toast(errorMessage, "error");
-      console.log(errorMessage);
     });
 });
 
