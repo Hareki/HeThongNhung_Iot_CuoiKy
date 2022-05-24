@@ -7,7 +7,7 @@
 #include <esp_task_wdt.h>
 
 /*========= DEFINE PORTS =========*/
-#define ANALOG_GAS 32
+#define ANALOG_GAS 36
 #define ANALOG_FIRE 33
 #define DIGITAL_DHT22 19  // TEMPERATURE + HUMID = TEHU
 #define ANALOG_WHISTLE 12
@@ -41,7 +41,7 @@
 /*========= END OF DEFINE CONNECTION INFORMATION =========*/
 
 /*========= DEFINE SENSORS =========*/
-#define R0 (0.58)
+#define R0 (8.8)
 #define Board ("ESP-32")
 #define Type ("MQ-2")
 #define Voltage_Resolution (3.3)

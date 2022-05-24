@@ -1,0 +1,5 @@
+en
+https://www.amazon.co.uk/AZDelivery-Development-Unsoldered-including-Successor/dp/B08BTS62L7?th=1
+
+de
+https://www.az-delivery.de/en/blogs/azdelivery-blog-fur-arduino-und-raspberry-pi/das-zehnte-tuerchen
