@@ -58,7 +58,7 @@ DHT dht(DIGITAL_DHT22, DHTTYPE);
 
 /*========= DEFINE COMMON VARIABLES =========*/
 #define GASPPM_GREATER_THRESHOLD 800
-#define FIRE_LOWER_THRESHOLD 3300
+#define FIRE_LOWER_THRESHOLD 500
 #define SAMPLING_TIME 1000
 
 #define LED_FREQUENCY 5000
@@ -298,6 +298,8 @@ void onFireCheckingTask(void *para) {
   const TickType_t delayTime = 250 / portTICK_PERIOD_MS;
   while (1) {
     value = analogRead(ANALOG_FIRE);
+    Serial.print("Fire Sensor: ");
+    Serial.println(value);
     if (value < FIRE_LOWER_THRESHOLD) {
       onFire = true;
       setOnFire(true);
@@ -459,8 +461,6 @@ void loop() {
       interval1 = millis();
 //      Serial.println("==================");
       sendDustData();
-      sendTemperatureData();
-      sendHumidityData();
       sendGasData();
     }
 
